@@ -13,7 +13,7 @@ and the directional heading angle. The scales are the nestMaxX and nestMaxY sett
 ### Authors
 James D. Crall, Department of Organismic and Evolutionary Biology, Harvard University, jcrall@oeb.harvard.edu
 
-Biswadip Dey, Department of Mechanical & Aerosphace Engineering, Princeton University, biswadip@princeton.edu
+Biswadip Dey, Department of Mechanical & Aerospace Engineering, Princeton University, biswadip@princeton.edu
 
 Ashlee N. Ford Versypt, School of Chemical Engineering, Oklahoma State University, ashleefv@okstate.edu
 
@@ -30,9 +30,10 @@ NOT intended to be called directly. This function contains all of the rules of t
   5. updating all the states for the next iterations.
  
 * simulation.m
-______________________________________
+  The function runs the model defined by rules.m for a user-defined number of time steps with the default parameters. Set vis = 0 to run without figures. Set vis = 1 to generate plots and videos of the output. This version is intended to stand alone.
+  
 * simulationOutputSpatial.m.
-   Initializes the model to the positions of a representative data set. Runs the runs for user-defined number of time steps. _________________
+   The function runs the model defined by rules.m for a user-defined number of time steps with the default parameters. This version is intended to be called by other scripts to repeat the simulation for determining statistics or to test the impacts of setting different parameter sets for parameter estimation, sensitivity analysis, or in silico experiments.
    
 * calculateSummaryStatistics.m.
     Given a nestData object and the coordinates of the nest structures (brood and 
