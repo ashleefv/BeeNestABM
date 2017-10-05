@@ -130,12 +130,38 @@ for timestep=1:totalTimePoints
     % Update agents
     %% Step 3: Covering each agent
     % Agent loop
+    
+        %% calculate whether each bee is on the nest structure or not for current timestep
+        [scrap onNestCurrentFrame] = calculatePortionOfTimeOnNest(nestSimulationData(timestep,:,:), brood, 0.01);
+        onNestCurrentFrame = logical(onNestCurrentFrame); %Convert from double to logical
+        
+        %Write to memory
+        onNest(timestep,:) = onNestCurrentFrame;
+        
     nestSimulationData(timestep+1,:,:) = rules(dt,nestSimulationData(timestep,:,:),...
         broodPosition,emptyFoodPosition,fullFoodPosition,...
         AtoI_Unbumped,ItoA_Unbumped,AtoI_Bumped,ItoA_Bumped,velocityPDF,exposure_state,tags);
 end
 toc
 'end of time loop'
+
+%update nestSimulationData with onNest
+    nestSimulationData = nestSimulationData(1:totalTimePoints,:,:);
+    nestSimulationData(:,:,7) = onNest;
+        cols = nan(numBees,3);
+    
+    for  zz = 1:numBees
+        if tags(zz) == 0
+            cols(zz,:) = [0 1 0];
+        elseif tags(zz) == 1
+            cols(zz,:) = [0 1 0];
+        elseif tags(zz) == 2
+            cols(zz,:) = [0 0 1];
+        elseif tags(zz) == 3
+            cols(zz,:) = [1 0 0];
+        end
+    end
+    
 %% Step 5: Final processing
 % Outputs and final processing
 % avg_x = sum(Agents.xstate)/length(Agents.xstate);
@@ -149,7 +175,7 @@ if vis == 1
     % open(myVideo);
     for timestep = 1:totalTimePoints 
         %%
-        plotCoordinatesAndBrood(nestSimulationData, brood, timestep);
+        plotCoordinatesAndBrood(nestSimulationData, brood, timestep,cols);
     % % for video
     %     frame = getframe(gcf);
     %     writeVideo(myVideo,frame);
