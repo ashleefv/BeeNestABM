@@ -7,14 +7,8 @@ NEED TO UPDATE AFTER James' in silico experiment codes are pushed
 ![Initial position of bees (blue dots), queen (large red circle) and nest structures (other large circles)](thumbnail.png)
 
 ## Overview
-The purpose of this agent-based model is to track the movements of individual 
-bees within a nest chamber on relatively short time scales (a few seconds to 
-less than one day) considering interactions with nestmates and nest structures 
-such as food or brood pots. The entities are the bumblebees. The states at each 
-time step are the x- and y-coordinates of each bee, the velocity, the activity state,
-and the directional heading angle. The scales are the nestMaxX and nestMaxY settings 
-set to 25 cm and 20 cm, respectively for the dimensions of the nest. The time scale 
-is 0.5 second per time step for a typically simulation duration of 500-3600 seconds.
+The purpose of this agent-based model is to track the movements of individual bees within a nest chamber on relatively short time scales (a few seconds to less than one day) considering interactions with nestmates and nest structures such as food or brood pots. The entities are the bumblebees. The states at each time step are the x- and y-coordinates of each bee, the velocity, the activity state,
+and the directional heading angle. The scales are the nestMaxX and nestMaxY settings set to 25 cm and 20 cm, respectively for the dimensions of the nest. The time scale is 0.5 second per time step for a typically simulation duration of 500-3600 seconds.
 
 ### Authors
 James D. Crall, Department of Organismic and Evolutionary Biology, Harvard University, jcrall@oeb.harvard.edu
