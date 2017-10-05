@@ -29,9 +29,9 @@ Ashlee N. Ford Versypt, School of Chemical Engineering, Oklahoma State Universit
   NOT intended to be called directly. This function contains all of the rules of 
   the agent-based model that are called at each time step. 
   The rules include 
-  (1) checking whether or not bees are close enough for social interactions
-  (2) transitioning between active (moving) and inactive (stationary) states
-  (3) moving with some velocity and at some angle heading (0-2 pi in 2D) from the 
+  ⋅⋅1. checking whether or not bees are close enough for social interactions
+  ⋅⋅2. transitioning between active (moving) and inactive (stationary) states
+  ⋅⋅3. moving with some velocity and at some angle heading (0-2 pi in 2D) from the 
   current position. 3A velocity: Bees that were previously inactive are set at a 
   velocity selected from the empirically determined distribution of bee velocities. 
   Bees that were already moving have two options for velocities: if the resampled  
@@ -51,8 +51,8 @@ Ashlee N. Ford Versypt, School of Chemical Engineering, Oklahoma State Universit
   The net environmental stimuli angle and the random walk angle are combined by a weighted
   mean in poloar coordinates with the weight of the environmental stimuli set to 10% and 
   the random walk deviations weighted at 90%. 
-  (4) truncating the bees movement if it hits the wall
-  (5) updating all the states for the next iterations.
+  ⋅⋅4. truncating the bees movement if it hits the wall
+  ⋅⋅5. updating all the states for the next iterations.
  
 * simulation.m
 ______________________________________
