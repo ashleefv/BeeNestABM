@@ -1,8 +1,7 @@
 # BeeNestABM
 Bee Nest Agent-Based Model: Agent-based model of spatiotemporal distribution of bumblebees in nests
 
-NEED TO UPDATE AFTER James' in silico experiment codes are pushed
-[![DOI](https://zenodo.org/badge/79126249.svg)](https://zenodo.org/badge/latestdoi/79126249)
+[![DOI](https://zenodo.org/badge/105827383.svg)](https://zenodo.org/badge/latestdoi/105827383)
 
 ![Initial position of bees (blue dots), queen (large red circle) and nest structures (other large circles)](thumbnail.PNG)
 
