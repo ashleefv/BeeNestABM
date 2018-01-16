@@ -1,4 +1,4 @@
-function nestSimulationData = simulationOutput(colony, estimatedData, exposure_state, totalTimePoints, motionParams, vis, varargin)
+function nestSimulationData = simulationOutputSpatial(colony, estimatedData, exposure_state, totalTimePoints, motionParams, vis, varargin)
     %Function to take colony data and return simulated data
     %
     %Inputs:
@@ -29,8 +29,8 @@ function nestSimulationData = simulationOutput(colony, estimatedData, exposure_s
     %   boolean of whether the bees are on the nest or not
     %
     if nargin > 6
-        coefficients = varargin{1};
         param_estim = 1;
+        variableArguments = varargin;
     else
         param_estim = 0;
     end
@@ -46,7 +46,7 @@ function nestSimulationData = simulationOutput(colony, estimatedData, exposure_s
     % number of time points
     %totalTimePoints = 250;
     
-    nestSimulationData = zeros(totalTimePoints,numBees,6);
+    nestSimulationData = zeros(totalTimePoints,numBees,5);
     onNest = nan(totalTimePoints,numBees);
     %exposure_state = 'post'; % 'pre' or 'post' or
     
@@ -77,11 +77,15 @@ function nestSimulationData = simulationOutput(colony, estimatedData, exposure_s
     % sucrose, 4 low dose, 5 high dose)
     % first row is inactive probability
     % second row is active probability
-    if strcmp(exposure_state, 'pre')
+    
+    % Commented out, so that initial activity distribution is always dictated
+    % by pre-exposure data, and 'exposure_state' is passed directly down to
+    % 'rules.m'
+    %if strcmp(exposure_state, 'pre')
         estimatedActiveProb = estimatedData.Activity_Prob_Dist_Pre(2,:);
-    elseif strcmp(exposure_state, 'post')
-        estimatedActiveProb = estimatedData.Activity_Prob_Dist_Post(2,:);
-    end
+    %elseif strcmp(exposure_state, 'post')
+    %    estimatedActiveProb = estimatedData.Activity_Prob_Dist_Post(2,:);
+    %end
     randomActive = rand(size(initialActivity));
     activeProbBees = zeros(size(initialActivity));
     activeProbBees = assignCohortParameters(estimatedActiveProb,activeProbBees,tags);
@@ -94,111 +98,35 @@ function nestSimulationData = simulationOutput(colony, estimatedData, exposure_s
     T = size(nestSimulationData,1)-1; % number of time steps
     final_time = dt*T; % s
     
-    % Static environment for the given colony
-    %   brood: n x 3 matrix, where 1st and 2nd columns are x and y coordinates,
-    %   and 3rd column contains labels for element type:
-    %   1 = brood (eggs, larvae, and pupae)
-    %   2 = full food pots
-    %   3 = empty pots + wax cover
-    broodPosition = brood(brood(:,3)==1,1:2);
-    fullFoodPosition = brood(brood(:,3)==2,1:2);
-    emptyFoodPosition = brood(brood(:,3)==3,1:2);
+%     % Static environment for the given colony
+%     %   brood: n x 3 matrix, where 1st and 2nd columns are x and y coordinates,
+%     %   and 3rd column contains labels for element type:
+%     %   1 = brood (eggs, larvae, and pupae)
+%     %   2 = full food pots
+%     %   3 = empty pots + wax cover
+%     broodPosition = brood(brood(:,3)==1,1:2);
+%     fullFoodPosition = brood(brood(:,3)==2,1:2);
+%     emptyFoodPosition = brood(brood(:,3)==3,1:2);
+    % Keep all nest structures labeled as "brood", inclusive of empty and 
+    %   full food pots and young
+    broodPosition = brood(:,1:2);
+    fullFoodPosition = NaN*broodPosition;
+    emptyFoodPosition = NaN*broodPosition;
     
     initialAngle = 2*pi*rand(size(estimatedData.Y_pos_initial));
     nestSimulationData(1,:,6) = initialAngle;% angle
     
     
-    % Transition probability matrix estimated from colony 1 data
-    % from Estimate_TransProb.m and the corresponding output
-    % Essential_Info_Col_*.mat
-    % transProb_Pre is a 2x1 cell: first entry is matrix without bump and
-    % second entry is matrix with bump
-    % A = active (activity = 1)
-    % I = inactive (activity = 0)
-    % [II IA % Probability that I stays I and that I transitions to A
-    %  AI AA] % Probability that A transitions to I and that A stays A
-    % each bee gets its own AtoI and ItoA _Bumped and _Unbumped
-    
-    % ON NEST PARAMETERS
-    AtoI_Unbumped_OnNest = zeros(size(initialActivity));
-    ItoA_Unbumped_OnNest = zeros(size(initialActivity));
-    AtoI_Bumped_OnNest = zeros(size(initialActivity));
-    ItoA_Bumped_OnNest = zeros(size(initialActivity));
-    
-%     if strcmp(exposure_state, 'pre')
-%         % all bees get the same bump values as there is only one cohort
-%         estimatedTransProb = estimatedData.transProb_Pre;
-%         AtoI_Unbumped_OnNest(:) = motionParams(1,1);
-%         ItoA_Unbumped_OnNest(:) = motionParams(2,1);
-%         AtoI_Bumped_OnNest(:) = motionParams(3,1);
-%         ItoA_Bumped_OnNest(:) = motionParams(4,1);
-%         %         % the queeen
-%         %         AtoI_Unbumped_OnNest(1) = estimatedTransProb{1,1}(2,1);
-%         %         ItoA_Unbumped_OnNest(1) = estimatedTransProb{1,1}(1,2);
-%         %         AtoI_Bumped_OnNest(1) = estimatedTransProb{2,1}(2,1);
-%         %         ItoA_Bumped_OnNest(1) = estimatedTransProb{2,1}(1,2);
-        
-        
-        
-        %FULL MODEL
-   % elseif strcmp(exposure_state, 'post')
-        % there are 4 cohorts of bump values as the queen is part of the
-        % untreated group
-        estimatedTransProb = estimatedData.transProb_Post;
-        for tagNumber = 1:4 % untreated, sucrose control, low dose, high dose
-            AtoI_Unbumped_OnNest(tags == tagNumber-1) = motionParams(1,tagNumber);
-            ItoA_Unbumped_OnNest(tags == tagNumber-1) = motionParams(2,tagNumber);
-            AtoI_Bumped_OnNest(tags == tagNumber-1) = motionParams(3,tagNumber);
-            ItoA_Bumped_OnNest(tags == tagNumber-1) = motionParams(4,tagNumber);
-        end
-        %         % the queeen
-        %         AtoI_Unbumped_OnNest(1) = estimatedTransProb{1,1}(2,1);
-        %         ItoA_Unbumped_OnNest(1) = estimatedTransProb{1,1}(1,2);
-        %         AtoI_Bumped_OnNest(1) = estimatedTransProb{2,1}(2,1);
-        %         ItoA_Bumped_OnNest(1) = estimatedTransProb{2,1}(1,2);
-        
-  %  end
-    
-    
-    % OFF NEST PARAMETERS
-    AtoI_Unbumped_OffNest = zeros(size(initialActivity));
-    ItoA_Unbumped_OffNest = zeros(size(initialActivity));
-    AtoI_Bumped_OffNest = zeros(size(initialActivity));
-    ItoA_Bumped_OffNest = zeros(size(initialActivity));
-    
-%     if strcmp(exposure_state, 'pre')
-%         % all bees get the same bump values as there is only one cohort
-%         estimatedTransProb = estimatedData.transProb_Pre;
-%         AtoI_Unbumped_OffNest(:) = motionParams(1,1,1); %Take data from first "sheets" of motionParams
-%         ItoA_Unbumped_OffNest(:) = motionParams(2,1,1);
-%         AtoI_Bumped_OffNest(:) = motionParams(3,1,1);
-%         ItoA_Bumped_OffNest(:) = motionParams(4,1,1);
-%         %         % the queeen
-%         %         AtoI_Unbumped_OffNest(1) = estimatedTransProb{1,1}(2,1);
-%         %         ItoA_Unbumped_OffNest(1) = estimatedTransProb{1,1}(1,2);
-%         %         AtoI_Bumped_OffNest(1) = estimatedTransProb{2,1}(2,1);
-%         %         ItoA_Bumped_OffNest(1) = estimatedTransProb{2,1}(1,2);
-%         
-        
-        
-        %FULL MODEL
-%    elseif strcmp(exposure_state, 'post')
-        % there are 4 cohorts of bump values as the queen is part of the
-        % untreated group
-        estimatedTransProb = estimatedData.transProb_Post;
-        for tagNumber = 1:4 % untreated, sucrose control, low dose, high dose
-            AtoI_Unbumped_OffNest(tags == tagNumber-1) = motionParams(1,tagNumber,2);
-            ItoA_Unbumped_OffNest(tags == tagNumber-1) = motionParams(2,tagNumber,2);
-            AtoI_Bumped_OffNest(tags == tagNumber-1) = motionParams(3,tagNumber,2);
-            ItoA_Bumped_OffNest(tags == tagNumber-1) = motionParams(4,tagNumber,2);
-        end
-        %         % the queeen
-        %         AtoI_Unbumped_OffNest(1) = estimatedTransProb{1,1}(2,1);
-        %         ItoA_Unbumped_OffNest(1) = estimatedTransProb{1,1}(1,2);
-        %         AtoI_Bumped_OffNest(1) = estimatedTransProb{2,1}(2,1);
-        %         ItoA_Bumped_OffNest(1) = estimatedTransProb{2,1}(1,2);
-        
-%    end
+    % Bring in transition probability data from "motionParams" input
+    AtoI_Unbumped_OnNest = motionParams.AtoI_Unbumped_OnNest;
+    ItoA_Unbumped_OnNest = motionParams.ItoA_Unbumped_OnNest;
+    AtoI_Bumped_OnNest = motionParams.AtoI_Bumped_OnNest;
+    ItoA_Bumped_OnNest = motionParams.ItoA_Bumped_OnNest;
+    AtoI_Unbumped_OffNest = motionParams.AtoI_Unbumped_OffNest;
+    ItoA_Unbumped_OffNest = motionParams.ItoA_Unbumped_OffNest;
+    AtoI_Bumped_OffNest = motionParams.AtoI_Bumped_OffNest;
+    ItoA_Bumped_OffNest = motionParams.ItoA_Bumped_OffNest;
+
     
     if vis == 1
         toc
@@ -248,9 +176,15 @@ function nestSimulationData = simulationOutput(colony, estimatedData, exposure_s
                 broodPosition,emptyFoodPosition,fullFoodPosition,...
                 AtoI_Unbumped,ItoA_Unbumped,AtoI_Bumped,ItoA_Bumped,velocityPDF,exposure_state,tags);
         else
-            nestSimulationData(timestep+1,:,:) = rules(dt,nestSimulationData(timestep,:,:),...
-                broodPosition,emptyFoodPosition,fullFoodPosition,...
-                AtoI_Unbumped,ItoA_Unbumped,AtoI_Bumped,ItoA_Bumped,velocityPDF,exposure_state,tags,coefficients);
+            if length(variableArguments)<3 % passing in coefficients and paramcase
+                nestSimulationData(timestep+1,:,:) = rules(dt,nestSimulationData(timestep,:,:),...
+                    broodPosition,emptyFoodPosition,fullFoodPosition,...
+                    AtoI_Unbumped,ItoA_Unbumped,AtoI_Bumped,ItoA_Bumped,velocityPDF,exposure_state,tags,variableArguments{1},variableArguments{2});
+            else % passing in new domain size for nest in addition to coefficients and paramcase
+                nestSimulationData(timestep+1,:,:) = rules(dt,nestSimulationData(timestep,:,:),...
+                    broodPosition,emptyFoodPosition,fullFoodPosition,...
+                    AtoI_Unbumped,ItoA_Unbumped,AtoI_Bumped,ItoA_Bumped,velocityPDF,exposure_state,tags,variableArguments{1},variableArguments{2},variableArguments{3});
+            end
         end
     end
     if vis == 1

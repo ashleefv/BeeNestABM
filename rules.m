@@ -2,17 +2,7 @@ function output = rules(dt,currentState,broodPosition,...
     emptyFoodPosition,fullFoodPosition,...
     AtoI_Unbumped,ItoA_Unbumped,AtoI_Bumped,ItoA_Bumped,velocityPDF,exposure_state,tags,varargin)
 
-if nargin > 12
-    coefficients = varargin{1};
-else
-    coefficientsguess(1) = 0.1; %COHORTenvironmentalStimuliWeight
-    coefficientsguess(2) = 0.1; %COHORTlambdaBrood 
-    coefficientsguess(3) = 0.1; %COHORTlambdaFullFood 
-    coefficientsguess(4) = 0.1; %COHORTlambdaEmptyFood
-    % selected values based on analysis with optimizerShellSpatial with
-    coefficients = coefficientsguess;
 
-end
 %% Rules
 
 %% Step 4: Updating agent i at time t
@@ -25,10 +15,10 @@ currentAngle(:,1) = currentState(1,:,6);
 
 numBees = length(position);
 
-% Next chamber size
+% Nest chamber size
 nestMaxX = 0.25; % m
 nestMaxY = 0.2; % m
-sensoryRadius = 40; %How many body lengths can the bee pay attention to stimuli within?>
+sensoryRadius = 10000; %How many body lengths can the bee pay attention to stimuli within?>
 updatedState = currentState; % initialize
 
 %% Parameters
@@ -40,26 +30,73 @@ updatedState = currentState; % initialize
 % the bees
 if strcmp(exposure_state,'pre')
     COHORTvelocityPerturbationAlwaysAccept = [0.2, 0.2, 0.2, 0.2, 0.2]; 
-    COHORTenvironmentalStimuliWeight = coefficients(1).*ones(1,5);
-    COHORTlambdaBrood = coefficients(2).*ones(1,5);
-    COHORTlambdaFullFood = coefficients(3).*ones(1,5);
-    COHORTlambdaEmptyFood = coefficients(4).*ones(1,5);
+    % case A & B: no attraction to nestmates, all nest structures lumped,
+    % optimization using all summary statistics, pre-exposure
+    COHORTenvironmentalStimuliWeight = [0.06675, 0.06675, 0.06675, 0.06675, 0.06675];
+    % case C & D: no attraction to nestmates, all nest structures lumped,
+    % optimization using all summary statistics EXCEPT interactionRate, pre-exposure 
+%     COHORTenvironmentalStimuliWeight = [0.09056, 0.09056, 0.09056, 0.09056, 0.09056];
+    COHORTlambdaBrood = [1, 1, 1, 1, 1];
+    COHORTlambdaFullFood = [0, 0, 0, 0, 0];
+    COHORTlambdaEmptyFood = [0, 0, 0, 0, 0];
     COHORTperturbationAngle = [pi/4, pi/4, pi/4, pi/4, pi/4]; 
     COHORTvelocityPerturbationMightAcceptProb = [0.1, 0.1, 0.1, 0.1, 0.1]; 
     COHORTBeeBodyThreshold = [0.01, 0.01, 0.01, 0.01, 0.01]; % m
     COHORTcutoffRadius = sensoryRadius*COHORTBeeBodyThreshold;
 elseif strcmp(exposure_state,'post')
     COHORTvelocityPerturbationAlwaysAccept = [0.2, 0.2, 0.2, 0.2, 0.2]; 
-    COHORTenvironmentalStimuliWeight = coefficients(1).*ones(1,5);
-    COHORTlambdaBrood = coefficients(2).*ones(1,5);
-    COHORTlambdaFullFood = coefficients(3).*ones(1,5);
-    COHORTlambdaEmptyFood = coefficients(4).*ones(1,5);
+    % case A: estimated coef 4 and 5 distinctly using all summary statistics
+%     COHORTenvironmentalStimuliWeight = [0.06675, 0.06675, 0.06675, 0.05014, 0.03489];
+    % case B: estimated coef 5 distinctly and set coef 4 = to
+    % control/untreated, using all summary statistics
+    COHORTenvironmentalStimuliWeight = [0.06675, 0.06675, 0.06675, 0.06675, 0.0317];
+    % case C: estimated coef 4 and 5 distinctly, using all summary statistics EXCEPT interactionRate
+%     COHORTenvironmentalStimuliWeight = [0.09056, 0.09056, 0.09056, 0.05014, 0.03489]; %NOT OPTIMIZED
+    % case D: estimated coef 5 distinctly and set coef 4 = to
+    % control/untreated, using all summary statistics EXCEPT interactionRate
+%     COHORTenvironmentalStimuliWeight = [0.09056, 0.09056, 0.09056, 0.09056, 0.077875];
+    % case E: same as B except that the objective function only considers
+    % high dose treated bees instead of the entire population
+%     COHORTenvironmentalStimuliWeight = [0.06675, 0.06675, 0.06675, 0.06675, 0.0519];
+    COHORTlambdaBrood = [1, 1, 1, 1, 1];
+    COHORTlambdaFullFood = [0, 0, 0, 0, 0];
+    COHORTlambdaEmptyFood = [0, 0, 0, 0, 0];
     COHORTperturbationAngle = [pi/4, pi/4, pi/4, pi/4, pi/4]; % pi/4 = 45 degrees
     COHORTvelocityPerturbationMightAcceptProb = [0.1, 0.1, 0.1, 0.1, 0.1]; 
     COHORTBeeBodyThreshold = [0.01, 0.01, 0.01, 0.01, 0.01]; % m
     COHORTcutoffRadius = sensoryRadius*COHORTBeeBodyThreshold;
 end
 
+if nargin > 12
+    coefficients = varargin{1};
+    paramcase = varargin{2};
+    if paramcase == 0
+%         paramcase = 0; pre-exposure Cases A, B, C, & D       
+        COHORTenvironmentalStimuliWeight = coefficients(1).*ones(1,5);
+    elseif paramcase == 1
+%        paramcase = 1;
+        COHORTenvironmentalStimuliWeight = coefficients(1).*ones(1,5);
+        COHORTlambdaBrood = coefficients(2).*ones(1,5);
+        COHORTlambdaFullFood = coefficients(3).*zeros(1,5);
+        COHORTlambdaEmptyFood = coefficients(4).*zeros(1,5);
+    elseif paramcase == 2
+%         paramcase = 2; post-exposure estimate
+        COHORTenvironmentalStimuliWeight(4:5) = [coefficients(1) coefficients(2)];     
+
+    elseif paramcase == 3
+        % case B & D: post-exposure estimate
+        % coef 5 distinctly and set coef 4 = to control/untreated
+        COHORTenvironmentalStimuliWeight(5) = coefficients(1); 
+    elseif paramcase == 4
+        COHORTenvironmentalStimuliWeight = coefficients(1).*ones(1,5); % untreated
+        COHORTenvironmentalStimuliWeight(5) = coefficients(2); % treated
+    end
+    if nargin > 14 % editable size of the domain
+        nestSize = varargin{3};
+        nestMaxX = nestSize(1); % cm
+        nestMaxY = nestSize(2); % cm
+    end
+end
 % Initialize all parameters to zero for each bee
 velocityPerturbationAlwaysAccept = zeros(numBees,1); 
 lambdaBrood = zeros(numBees,1);
@@ -83,7 +120,7 @@ velocityPerturbationAlwaysAccept = assignCohortParameters(COHORTvelocityPerturba
 lambdaBrood = assignCohortParameters(COHORTlambdaBrood,lambdaBrood,tags);
 lambdaFullFood = assignCohortParameters(COHORTlambdaFullFood,lambdaFullFood,tags);
 lambdaEmptyFood = assignCohortParameters(COHORTlambdaEmptyFood,lambdaEmptyFood,tags);
-lambdaBees(:) = 1-(lambdaBrood+lambdaFullFood+lambdaEmptyFood);
+lambdaBees(:) = 0; %1-(lambdaBrood+lambdaFullFood+lambdaEmptyFood);
 
 environmentalStimuliWeight = assignCohortParameters(COHORTenvironmentalStimuliWeight,environmentalStimuliWeight,tags);
 

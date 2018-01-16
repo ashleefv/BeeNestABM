@@ -36,9 +36,11 @@ function [means distributions] = calculateSummaryStatistics(data, brood)
     data(:,:,1) = x;
     data(:,:,2) = y;
     
+    
     %% Crate empty structure arrays
     means = struct();
     distributions = struct();
+    
     
     %% Calculate Activity level
     act = data(:,:,5);
@@ -47,11 +49,22 @@ function [means distributions] = calculateSummaryStatistics(data, brood)
     distributions.activity = activity;
     means.activity = nanmean(activity);
     
+    
     %% Distance to nestmates
     distMat = calculatePairwiseDistanceMatrix(data(:,:,1:2));
     meanDistanceToOtherBees = nanmean(nanmean(distMat,3));
     means.distanceToNestmates = nanmean(meanDistanceToOtherBees);
     distributions.distanceToNestmates = meanDistanceToOtherBees;
+    
+    
+    %% Social interactions
+    intMat = double(distMat < 0.01);
+    intMat(isnan(distMat)) = NaN;
+    intMat = nanmean(intMat,3);
+    intMat(logical(eye(size(intMat)))) = NaN;
+    interactionRate = nanmean(intMat);
+    distributions.interactionRate = interactionRate;
+    means.interactionRate = nanmean(interactionRate);
     
     %% distance To nest structures
     
