@@ -4,7 +4,7 @@ Bee Nest Agent-Based Model: Agent-based model of spatiotemporal distribution of 
 NEED TO UPDATE AFTER James' in silico experiment codes are pushed
 [![DOI](https://zenodo.org/badge/79126249.svg)](https://zenodo.org/badge/latestdoi/79126249)
 
-![Initial position of bees (blue dots), queen (large red circle) and nest structures (other large circles)](thumbnail.png)
+![Initial position of bees (blue dots), queen (large red circle) and nest structures (other large circles)](thumbnail.PNG)
 
 ## Overview
 The purpose of this agent-based model is to track the movements of individual bees within a nest chamber on relatively short time scales (a few seconds to less than one day) considering interactions with nestmates and nest structures such as food or brood pots. The entities are the bumblebees. The states at each time step are the x- and y-coordinates of each bee, the velocity, the activity state,
