@@ -55,11 +55,13 @@ estimatedData = load(['data\Essential_Info_Col_' num2str(colonyNumber) '.mat']);
 % estimation where brood, full and empty food each get a weighting along
 % with nestmates
 % case 2 is two coefficients for the post exposure case parameter estimation
+% case 3 is one coefficient for the post exposure case parameter estimation
+%OPTION USED IN RESULTS IN EMPIRICAL PAPER: PARAMCASE 3 CASE B
     % cases A & B: no attraction to nestmates, all nest structures lumped,
     % optimization using all summary statistics, pre-exposure
     % cases C & D: no attraction to nestmates, all nest structures lumped,
     % optimization using all summary statistics EXCEPT interactionRate, pre-exposure 
-    % cases A & C: post-exposure estimate coef 4 and 5 distinctly with
+    % cases A & C: pre-exposure estimate coef 4 and 5 distinctly with
     % paramcase 2
     % cases B & D: post-exposure estimate coef 5 distinctly and set 
     % coef 4 = to control/untreated with paramcase 3
@@ -77,7 +79,7 @@ elseif paramcase == 1
     LB = [0,0,0,0]; % lower bound for coefficients
     UB = [1,1,1,1]; % upper bound for coefficients
 elseif paramcase == 2
-    % case A & C: post-exposure estimate
+    % case A & C: pre-exposure estimate
     % coef 4 and 5 distinctly
     startcoefficientsguess(1) =  0.06675*.75; %COHORTenvironmentalStimuliWeight(4)
     startcoefficientsguess(2) =  0.06675*.5; %COHORTenvironmentalStimuliWeight(5)
