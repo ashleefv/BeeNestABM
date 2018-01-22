@@ -38,19 +38,22 @@ function nestSimulationData = simulationOutputSpatial(colony, estimatedData, exp
     if vis == 1
         tic
     end
+    
     % Initial state of the agents
-    brood = relabelBroodObject(colony.broodPre);
-    numFrames = size(colony.preNest,1);
-    numBees = size(colony.preNest,2);
-    tags = colony.orTagTreat;
-    % number of time points
-    %totalTimePoints = 250;
+    if length(variableArguments) == 3
+        % passing in new domain size for nest in addition to coefficients and paramcase
+        % i.e., running modelBeeScript.m
+        brood = colony.brood;
+        numBees = colony.numBees;
+        tags = colony.orTagTreat;
+    else
+        brood = relabelBroodObject(colony.broodPre);
+        numBees = size(colony.preNest,2);
+        tags = colony.orTagTreat;
+    end
     
     nestSimulationData = zeros(totalTimePoints,numBees,5);
     onNest = nan(totalTimePoints,numBees);
-    %exposure_state = 'post'; % 'pre' or 'post' or
-    
-    
     
     % The initial state for X & Y coordinates is sampled one time from a normal
     % distribution fitted to the observed data for the colony specified by colonyNumber

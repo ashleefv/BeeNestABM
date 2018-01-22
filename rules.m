@@ -30,7 +30,7 @@ updatedState = currentState; % initialize
 % the bees
 if strcmp(exposure_state,'pre')
     COHORTvelocityPerturbationAlwaysAccept = [0.2, 0.2, 0.2, 0.2, 0.2]; 
-    % case A & B: no attraction to nestmates, all nest structures lumped,
+    % case A & B & E: no attraction to nestmates, all nest structures lumped,
     % optimization using all summary statistics, pre-exposure
     COHORTenvironmentalStimuliWeight = [0.06675, 0.06675, 0.06675, 0.06675, 0.06675];
     % case C & D: no attraction to nestmates, all nest structures lumped,
@@ -43,13 +43,14 @@ if strcmp(exposure_state,'pre')
     COHORTvelocityPerturbationMightAcceptProb = [0.1, 0.1, 0.1, 0.1, 0.1]; 
     COHORTBeeBodyThreshold = [0.01, 0.01, 0.01, 0.01, 0.01]; % m
     COHORTcutoffRadius = sensoryRadius*COHORTBeeBodyThreshold;
-elseif strcmp(exposure_state,'post')
+else
+    %if strcmp(exposure_state,'post') or ''
     COHORTvelocityPerturbationAlwaysAccept = [0.2, 0.2, 0.2, 0.2, 0.2]; 
     % case A: estimated coef 4 and 5 distinctly using all summary statistics
 %     COHORTenvironmentalStimuliWeight = [0.06675, 0.06675, 0.06675, 0.05014, 0.03489];
     % case B: estimated coef 5 distinctly and set coef 4 = to
     % control/untreated, using all summary statistics
-    COHORTenvironmentalStimuliWeight = [0.06675, 0.06675, 0.06675, 0.06675, 0.0317];
+%     COHORTenvironmentalStimuliWeight = [0.06675, 0.06675, 0.06675, 0.06675, 0.0317];
     % case C: estimated coef 4 and 5 distinctly, using all summary statistics EXCEPT interactionRate
 %     COHORTenvironmentalStimuliWeight = [0.09056, 0.09056, 0.09056, 0.05014, 0.03489]; %NOT OPTIMIZED
     % case D: estimated coef 5 distinctly and set coef 4 = to
@@ -57,7 +58,7 @@ elseif strcmp(exposure_state,'post')
 %     COHORTenvironmentalStimuliWeight = [0.09056, 0.09056, 0.09056, 0.09056, 0.077875];
     % case E: same as B except that the objective function only considers
     % high dose treated bees instead of the entire population
-%     COHORTenvironmentalStimuliWeight = [0.06675, 0.06675, 0.06675, 0.06675, 0.0519];
+    COHORTenvironmentalStimuliWeight = [0.06675, 0.06675, 0.06675, 0.06675, 0.0519];
     COHORTlambdaBrood = [1, 1, 1, 1, 1];
     COHORTlambdaFullFood = [0, 0, 0, 0, 0];
     COHORTlambdaEmptyFood = [0, 0, 0, 0, 0];

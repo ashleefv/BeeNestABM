@@ -50,13 +50,13 @@ estimatedData = load(['data\Essential_Info_Col_' num2str(colonyNumber) '.mat']);
  paramcase = 3; 
 % case 0 is where the COHORTenvironmentalStimuliWeight is the only
 % parameter to estimate for the pre exposure case parameter estimation;
-% includes cases A, B, C, & D
+% includes cases A, B, C, D, & E
 % case 1 is four coefficients for the pre exposure case parameter
 % estimation where brood, full and empty food each get a weighting along
 % with nestmates
 % case 2 is two coefficients for the post exposure case parameter estimation
 % case 3 is one coefficient for the post exposure case parameter estimation
-%OPTION USED IN RESULTS IN EMPIRICAL PAPER: PARAMCASE 3 CASE B
+%OPTION USED IN RESULTS IN EMPIRICAL PAPER: PARAMCASE 3 CASE E
     % cases A & B: no attraction to nestmates, all nest structures lumped,
     % optimization using all summary statistics, pre-exposure
     % cases C & D: no attraction to nestmates, all nest structures lumped,
@@ -65,6 +65,16 @@ estimatedData = load(['data\Essential_Info_Col_' num2str(colonyNumber) '.mat']);
     % paramcase 2
     % cases B & D: post-exposure estimate coef 5 distinctly and set 
     % coef 4 = to control/untreated with paramcase 3
+    % case E is focused only on the treated cohort for the objective function 
+    % in the post-exposure state. this is simply accomplished using the same 
+    % optimization as case B except that the calculateSummaryStatistics for 
+    % the empirical and simulation cases use nestData(:,tags==3,:) or 
+    % nestSimulationData(:,tags==3,:) to only compare summary statistics for 
+    % the treated cohorts in paramcase == 3. Case E is line 60 in rules.m. 
+    % The corresponding estimated treated-bee specific attraction is 0.0519. 
+    % This analysis only cares what the distribution looks like for the treated bees 
+    % and does not try to compensate for shortcomings in the untreated attraction 
+    % weight's ability to fit the untreated portion of the population. 
 if paramcase == 0
     % case 0; pre-exposure Cases A, B, C, & D 
     startcoefficientsguess(1) = 0.06675; %COHORTenvironmentalStimuliWeight
@@ -109,7 +119,7 @@ else
     [empiricalMeans empiricalDistributions] = calculateSummaryStatistics(nestData,brood);
 end
 % Repack the empirical values into a vector for optimization
-% cases A & B
+% cases A & B & E
 Ydata = [empiricalMeans.activity; empiricalMeans.distanceToNestmates; ...
     empiricalMeans.distanceToBrood; empiricalMeans.distanceToCenter; ...
     empiricalMeans.porTimeOnNest; empiricalMeans.interactionRate];
@@ -205,7 +215,7 @@ stddevcoef = std(coefficients,0,1)
         distanceToCenter = means.distanceToCenter;
         porTimeOnNest = means.porTimeOnNest;
         interactionRate = means.interactionRate;
-        % cases A & B
+        % cases A & B & E
          Ycalc = [activity; distanceToNestmates; distanceToBrood; distanceToCenter; porTimeOnNest; interactionRate];
         % cases C & D
 %         Ycalc = [activity; distanceToNestmates; distanceToBrood; distanceToCenter; porTimeOnNest];
