@@ -9,10 +9,10 @@ nestMaxX = 0.2; % m
 nestMaxY = 0.2; % m
 
 % Number of bees
-numBees = 111;
+numBees = 3;
 
 % Number of repeated simulations with the same conditions
-numTrials = 2;  
+numTrials = 1;  
 
 % Fraction of bees treated
 fractTreated = 0.5;
@@ -29,7 +29,7 @@ environmentalStimuliWeightUntreated = 0.06675; % untreated, fitted value = 0.066
 environmentalStimuliWeightTreated = 0.0519; % treated, fitted value = 0.0519
 
 % number of time points
-totalTimePoints = 600; % 5 min of simulation time at 2 Hz
+totalTimePoints = 10; % 5 min of simulation time at 2 Hz
 
 % view plots: 1 for turning plotting on, 0 for plotting off
 vis = 0;
@@ -52,12 +52,12 @@ nestSimulationData = zeros(totalTimePoints,numBees,7);
 % Overwrites speed distribution with the estimate obtained by combining
 % data across all colonies (instead of a single colony)
 % averages specified [ ] colonies pre-exposure velocity distributions
-estimatedData.PDF_Dist_Speed_Log = compute_speed_dist_allColonies([1 2 3 4],0); 
+estimatedData.PDF_Dist_Speed_Log = compute_speed_dist_allColonies([1],0); 
 
 %% Multiple colony averaged activity probability distribution
 % as in simulationOutputSpatial, only the pre-exposure values are used for
 % the initial activities
-estimatedData.Activity_Prob_Dist_Pre = compute_Activity_Prob_Dist_allColonies([1 2 3 4],0);
+estimatedData.Activity_Prob_Dist_Pre = compute_Activity_Prob_Dist_allColonies([1],0);
 
 %% Initial positions
 % random x & y distribution throughout the nest
