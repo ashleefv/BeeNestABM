@@ -14,7 +14,6 @@ on the effects of pesticides that occur in bumblebees over short time scales (ho
 neonicitinoid pesticides that account for colony size and interactions between exposed and unexposed individuals. The short and local scales allow the model to explicitly consider neighbor interactions and individual bee interactions with structures inside an isolated
 environment without confounding external factors. Novel research results using this software for scientific applications have been obtained (Crall et al. 2018a, 2018b).
 
-![A) The BeeNestABM model tracks bumblebee activity and motility using empirically estimated probabilities for transitions between active (mobile) and inactive states. B) The location of a bee in relation to the structures such as brood and food pots within the nest influence the transition probabilities and the orientation of bee movement through a combination of random walk and attraction toward the nest structures. C) The transition probabilities contain a component that considers whether the transition is occuring spontaneously or due to social modulation upon collison with a neighboring bee.](BeeNestABM.png)
 To facilitate model reuse and reproducible computational research, we have followed the Overview, Design concepts, and Details (ODD) protocol (Grimm et al. 2006, 2010) for standardizing communication of agent-based models. The purpose of this agent-based model is to track the movements of individual bees within a nest chamber on relatively short time scales (a few seconds to less than one day) considering interactions with nestmates and nest structures such as food or brood pots. The entities are the bumblebees. 
 
 ## Entities, state variables, and scales
@@ -33,7 +32,9 @@ The entities are characterized by the following state variables that are updated
 ## Design concepts
 
 ### Basic principles
-A key concept of the model is to include rules for behaviors inside the nest that can be modulated upon sublethal exposure to pesticides.
+A key concept of the model is to include rules for behaviors inside the nest that can be modulated upon sublethal exposure to pesticides. These behaviors relate to the portion of the time spent on the nest, the portion of time spent actively moving, the interaction rate of bees with each other, and the spatial distributions of bee movements throughout the nest. The BeeNestABM model tracks bumblebee activity and motility using empirically estimated probabilities for transitions between active (mobile) and inactive states (Fig. A). The location of a bee in relation to the structures such as brood and food pots within the nest influence the transition probabilities and the orientation of bee movement through a combination of random walk and attraction toward the nest structures (Fig. B). The transition probabilities contain a component that considers whether the transition is occuring spontaneously or due to social modulation upon collison with a neighboring bee (Fig. C).
+
+![Figure 1](BeeNestABM.png)
 
 ## Authors
 James D. Crall, Department of Organismic and Evolutionary Biology, Harvard University, jcrall@oeb.harvard.edu
