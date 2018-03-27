@@ -4,6 +4,7 @@ Bee Nest Agent-Based Model: Agent-based model of spatiotemporal distribution of 
 [![DOI](https://zenodo.org/badge/105827383.svg)](https://zenodo.org/badge/latestdoi/105827383)
 
 ![Initial position of bees (blue dots), queen (large red circle) and nest structures (other large circles)](thumbnail.PNG)
+Figure 1: 
 
 ## Authors
 Ashlee N. Ford Versypt, School of Chemical Engineering, Oklahoma State University, ashleefv@okstate.edu
@@ -30,6 +31,7 @@ The entities are characterized by the following state variables that are updated
 The BeeNestABM model tracks bumblebee activity and motility using empirically estimated probabilities for transitions between active (mobile) and inactive states (Fig. A). The location of a bee in relation to the structures such as brood and food pots within the nest influence the transition probabilities and the orientation of bee movement through a combination of random walk and attraction toward the nest structures (Fig. B). The transition probabilities contain a component that considers whether the transition is occuring spontaneously or due to social modulation upon collison with a neighboring bee (Fig. C).
 
 ![Figure 1](BeeNestABM.png)
+Figure 1
 
   1. Checking whether or not bees are close enough for social interactions.
   2. Transitioning between active (moving) and inactive (stationary) states.
