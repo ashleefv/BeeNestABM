@@ -30,18 +30,19 @@ The BeeNestABM model tracks bumblebee activity and motility using empirically es
 
 Figure 2: Phenomena considered in transition probabilities
 
-  1. Checking whether or not bees are close enough for social interactions.
-  2. Transitioning between active (moving) and inactive (stationary) states.
-  3. Moving with some velocity and at some angle heading (0-2 pi in 2D) from the current position. 
+The following rules or submodels are executed in rules.m:
+  1. Check whether or not bees are close enough for social interactions.
+  2. Transition between active (moving) and inactive (stationary) states.
+  3. Move with some velocity and at some angle heading (0-2 pi in 2D) from the current position (Figure 3). 
     - velocity: Bees that were previously inactive are set at a velocity selected from the empirically determined distribution of bee velocities. Bees that were already moving have two options for velocities: if the resampled velocity from the distribution is +/- 20% of the current velocity, it is updated, but if the sample velocity is outside this range, then velocities have a 10% probability of switching to the sample value and 90 % probability of staying at the current velocity. 
-    - angle: First, an angle perturbed within +/- pi/4 of the current angle heading is calculated as the random walk angle. Next, the pairwise distances between a bee and the collection of other nestmates and the nest structures (itemized by brood, empty food pots, and full food pots) are calculated along with the angles of the resultant total distance vectors for each category. The attractions to the nestmates and the nest structures are specified as attraction weights called lambda (the current values have all three types of nest structures lumped together and no attraction toward nestmates). These are collectively referred to as the  environmental stimuli. The net angle for the environmental stimuli is the mean in polar coordinates of the angles between each bee and the nestmates and structures in the nest weighted by their attraction lambda values. The net environmental stimuli angle and the random walk angle are combined by a weighted mean in poloar coordinates with the weight of the environmental stimuli set to different weights for different cohorts (default values stored in rules.m) and the random walk deviations weighted at 1-environmental stimuli weight. 
+    - angle: First, an angle perturbed within +/- perturbationAngle of the current angle heading is calculated as the random walk angle. Next, the pairwise distances between a bee and the collection of other nestmates and the nest structures (itemized by brood, empty food pots, and full food pots) are calculated along with the angles of the resultant total distance vectors for each category. The attractions to the nestmates and the nest structures are specified as attraction weights called lambda (the current values have all three types of nest structures lumped together and no attraction toward nestmates). These are collectively referred to as the  environmental stimuli. The net angle for the environmental stimuli is the mean in polar coordinates of the angles between each bee and the nestmates and structures in the nest weighted by their attraction lambda values. The net environmental stimuli angle and the random walk angle are combined by a weighted mean in poloar coordinates with the weight of the environmental stimuli set to different weights for different cohorts (default values stored in rules.m) and the random walk deviations weighted at 1-environmental stimuli weight. 
     
   ![Figure 3](BeeNestABMnest.png)
 
 Figure 3: Phenomena considered in bee movement submodel 
 
-  4. Truncating a bee's movement if it hits the wall.
-  5. Updating all the states for the next iterations.
+  4. Truncate a bee's movement if it hits the wall.
+  5. Update all the states for the next iterations.
 
 ## Design concepts
 
@@ -62,16 +63,27 @@ When bees come into direct contact, this changes the probabilities for transitio
 
 ### Stochastisticity
 
+The starting positions and velocities are generated from a distribution, thus they will be different for each simulation. The transition from active to inactive states or vice versa is updated stochastically at each time step. The velocity is updated from a sampled distribution with a probability velocityPerturbationMightAcceptProb for accepting an updated velocity outside of a window of velocityPerturbationAlwaysAccept fraction around the currentVelocity. The randomWalkAngle is a stochastic change within +/- perturbationAngle from the current directional heading.
+
 ### Observations
+Bee coordinates are plotted, and animations of the bee movements over time can be shown as simulation output to visualize spatial distributions over time. Additional statistics are gathered based on the means over all time steps and all bees for the following calculated metrics (calculateSummaryStatistics.m): activity (moving or not), distance to other bees, distance to nest structures, distance to the social center of the nest, and portion of time spent on the nest.
 
 ## Initialization
+To use a sample bumblebee colony as the starting population of bees with experimentally observed nest structure layout and initial positions, run either optimizerShellSpatial.m or localSensitivity.m described below in the Main files section with colonyNumber = 1. The initial states for the x- and y-coordinates for each bee are sampled from a normal distribution that was fitted to the colony 1 data. The initial velocity states for the bees are randomly sampled from a Weibul distribution fitted to the colony 1 data. The initial activity states are assigned based on the proportion of the entire experiment duration (1 hour) that bees in colony 1 were active or inactive. exposure_state may be switched between "pre" and "post" to denote a control population and one experimentally observed population with a individuals in cohorts of control, very low exposure, and significant sublethal exposure. The positions of the brood and full and empty food pots are set based on the colony 1 observed locations. The transition probabilities and the environmental stimuli weight were estimated from experimental data for the colony.
+
+To customize a simulation, run modelBeeScript.m. The user can specify the nest chamber sizes, the number of bees, the number of simulation replicates, the fraction of bees that are "treated" or exposed to the pesticide, the fraction of the domain uniformly covered by nest structures in a central zone, the spacing between the nest structures in the central occupied zone, the environmental stimuli weights for untreated and for treated bees, and the number of time steps for the simulation.  
 
 ## Input data
 
+The empirically-driven simulation files (see Main files section below) use experimental observations of a colony to populate the initial conditions. The transition probabilities or "motion parameters" from parameterEstimates.csv and the empirically-based velocity distribution are needed to update properties dynamically during the simulation.
+
 ## Submodels
 
+The file rules.m and its dependent files contain all the submodels for the agent-based model. These are summarized in the Process overview and scheduling section above. Users are referred to the comments imbedded within rules.m for details  of the submodels. The submodels are designated using the MATLAB commenting section notation %%.
 
 ## Main files
+
+### Empirically-driven simulation
    
 * inSilicoExp_Working.m.
     Script to adjust input parameters for spontaneous and social transitions between 
@@ -92,10 +104,14 @@ OR
   Runs the full model with the optimized parameter cases when sensitivity = 0 and 
   analyzes the statistics via calculateSummaryStatistics.m.. numberTrials indicates how many repeated simulations to run. For   numberTrials > 1, means and standard deviations are calculated for each output metric.
   
-OR
+### Empirically-driven graphical user interface of simplified simulation
 
 * BeeAttractionApp/BeeAttraction.m
-  MATLAB graphical user interface for educational purposes. It uses an older version of the ABM model where the bees are attracted environmental stimuli weight "attraction" is variable and is comprised of 10% each from the three types of nest structures and 70% from attraction to nestmates. This is no longer used in the production runs for scientific purposes; however, it does serve as a nice example of an agent-based model for educational outreach use.
+  MATLAB graphical user interface for educational purposes (Figure 1). It uses an older version of the ABM model where the bees are attracted environmental stimuli weight "attraction" is variable and is comprised of 10% each from the three types of nest structures and 70% from attraction to nestmates. This is no longer used in the production runs for scientific purposes; however, it does serve as a nice example of an agent-based model for educational outreach use.
+  
+### Custom simulation
+* modelBeeScript.m
+  Script to allow users to input customized initialization parameters (see Initialization section above). The code then structures that input into the required formats to run the simulationOutputSpatial.m model with the custom inputs. Metrics from calculateSummaryStatistics.m are calculated as model outputs. Statistics are analyzed for repeated trials.
 
 ## Dependent files
 * simulationOutputSpatial.m.
