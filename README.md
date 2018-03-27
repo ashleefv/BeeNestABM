@@ -6,6 +6,15 @@ Bee Nest Agent-Based Model: Agent-based model of spatiotemporal distribution of 
 ![Initial position of bees (blue dots), queen (large red circle) and nest structures (other large circles)](thumbnail.PNG)
 
 ## Overview
+This software features the MATLAB source code for an interactive computational model that can be used to study the localized responses 
+of bumblebees to sublethal exposures to a prevalent class of pesticides called neonicotinoids. The code involves an agent-based stochastic model for the interactions between 
+and movements of individual bees within a nest and the nest-related disruptions that occur due to pesticide exposure. The dynamic states of the bees are stored in a matrix, the default data structure 
+of MATLAB. Agent-based modeling allows for building understanding of the colony scale impacts of multiple interacting factors that affect numerous individuals in close proximity and how those change upon pesticide exposure. The scienfic significance is that the model solved in the software focuses 
+on the effects of pesticides that occur in bumblebees over short time scales (hours to days) inside a single nest. These temporal and spatial scales are appropriate for modeling the effects of 
+neonicitinoid pesticides that account for colony size and interactions between exposed and unexposed individuals. The short and local scales allow the model to explicitly consider neighbor interactions and individual bee interactions with structures inside an isolated
+environment without confounding external factors. Novel research results using this software for scientific applications have been obtained (Crall et al. 2018a, 2018b).
+
+![A) The BeeNestABM model tracks bumblebee activity and motility using empirically estimated probabilities for transitions between active (mobile) and inactive states. B) The location of a bee in relation to the structures such as brood and food pots within the nest influence the transition probabilities and the orientation of bee movement through a combination of random walk and attraction toward the nest structures. C) The transition probabilities contain a component that considers whether the transition is occuring spontaneously or due to social modulation upon collison with a neighboring bee.](BeeNestABM.png)
 To facilitate model reuse and reproducible computational research, we have followed the Overview, Design concepts, and Details (ODD) protocol (Grimm et al. 2006, 2010) for standardizing communication of agent-based models. The purpose of this agent-based model is to track the movements of individual bees within a nest chamber on relatively short time scales (a few seconds to less than one day) considering interactions with nestmates and nest structures such as food or brood pots. The entities are the bumblebees. 
 
 ## Entities, state variables, and scales
@@ -74,5 +83,7 @@ NOT intended to be called directly. This function contains all of the rules of t
     distance to the social center of the nest, and portion of time spent on the nest.
     
 ## References
+* Crall, J.A., Dey, B., Ford Versypt, A. N., Colony size and pesticide exposure: using an agent-based model to explore social buffering of neonicotinoid exposure in bumblebees, Submitted to Frontiers in Ecology and Evolution, 2018.
+* Crall, J.A., Switzer, C., Oppenheimer, R., Combes, S., Pierce, N., De Bivort, B., Ford Versypt, A. N., Dey, B., Brown, A., Eyster, M., Guerin, C. Chronic neonicotinoid exposure disrupts bumblebee nest behavior, social networks, and thermoregulation, Submitted to Science, 2018.
 * Grimm, V., Berger, U., Bastiansen, F., Eliassen, S., Ginot, V., Giske, J., Goss-Custard, J., Grand, T., Heinz, S., Huse, G., Huth, A., Jepsen, J.U., Jorgensen, C., Mooij, W.M., Muller, B., Pe'er, G., Piou, C., Railsback, S.F., Robbins, A.M., Robbins, M.M., Rossmanith, E., Ruger, N., Strand, E., Souissi, S., Stillman, R.A., Vabo, R., Visser, U., DeAngelis, D.L., 2006. A standard protocol for describing individual-based and agent-based models, Ecol. Model. 198, 115-126. 
 * Grimm, V., Berger, U., DeAngelis, D.L., Polhill, J.G., Giske, J., Railsback, S.F., 2010. The ODD protocol: A review and first update, Ecol. Model. 221, 2760-2768. 
