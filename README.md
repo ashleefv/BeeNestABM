@@ -5,6 +5,13 @@ Bee Nest Agent-Based Model: Agent-based model of spatiotemporal distribution of 
 
 ![Initial position of bees (blue dots), queen (large red circle) and nest structures (other large circles)](thumbnail.PNG)
 
+## Authors
+Ashlee N. Ford Versypt, School of Chemical Engineering, Oklahoma State University, ashleefv@okstate.edu
+
+James D. Crall, Department of Organismic and Evolutionary Biology, Harvard University, jcrall@oeb.harvard.edu
+
+Biswadip Dey, Department of Mechanical & Aerospace Engineering, Princeton University, biswadip@princeton.edu
+
 ## Overview
 This software features the MATLAB source code for an interactive computational model that can be used to study the localized responses 
 of bumblebees to sublethal exposures to a prevalent class of pesticides called neonicotinoids. The code involves an agent-based stochastic model for the interactions between 
@@ -17,9 +24,12 @@ environment without confounding external factors. Novel research results using t
 To facilitate model reuse and reproducible computational research, we have followed the Overview, Design concepts, and Details (ODD) protocol (Grimm et al. 2006, 2010) for standardizing communication of agent-based models. The purpose of this agent-based model is to track the movements of individual bees within a nest chamber on relatively short time scales (a few seconds to less than one day) considering interactions with nestmates and nest structures such as food or brood pots. The entities are the bumblebees. 
 
 ## Entities, state variables, and scales
-The entities are characterized by the following state variables that are updated at each time step: the x- and y-coordinates, the velocity, the activity state, and the directional heading angle. The states are stored in the nestSimulationData 3-dimensional MATLAB matrix. The simulation environment also includes nest stuctures--full and empty food pots and brood pots--dispersed throughout the nest. The model considers collectives of bees that are on or off of the nest based on their locations relative to the nest structures. The default length scales are the nestMaxX and nestMaxY settings set to 25 cm and 20 cm, respectively for the dimensions of the nest. The time step is 1/frequency, where the default frequency is 2 Hz, and a simuation runs for  for totalTimePoints, which has typical values between 600 and 7200 for 5-60 min of simulated time. 
+The entities are characterized by the following state variables that are updated at each time step: the x- and y-coordinates, the velocity, the activity state, and the directional heading angle. The states are stored in the nestSimulationData 3-dimensional MATLAB matrix. The simulation environment also includes nest stuctures--full and empty food pots and brood pots--dispersed throughout the nest. The model considers collectives of bees that are on or off of the nest based on their locations relative to the nest structures. The default length scales are the nestMaxX and nestMaxY settings set to 25 cm and 20 cm, respectively for the dimensions of the nest. The bees have size BeeBodyThreshold = 1 cm. The time step is 1/frequency, where the default frequency is 2 Hz, and a simuation runs for  for totalTimePoints, which has typical values between 600 and 7200 for 5-60 min of simulated time. 
 
 ## Process overview and scheduling
+The BeeNestABM model tracks bumblebee activity and motility using empirically estimated probabilities for transitions between active (mobile) and inactive states (Fig. A). The location of a bee in relation to the structures such as brood and food pots within the nest influence the transition probabilities and the orientation of bee movement through a combination of random walk and attraction toward the nest structures (Fig. B). The transition probabilities contain a component that considers whether the transition is occuring spontaneously or due to social modulation upon collison with a neighboring bee (Fig. C).
+
+![Figure 1](BeeNestABM.png)
 
   1. Checking whether or not bees are close enough for social interactions.
   2. Transitioning between active (moving) and inactive (stationary) states.
@@ -32,16 +42,30 @@ The entities are characterized by the following state variables that are updated
 ## Design concepts
 
 ### Basic principles
-A key concept of the model is to include rules for behaviors inside the nest that can be modulated upon sublethal exposure to pesticides. These behaviors relate to the portion of the time spent on the nest, the portion of time spent actively moving, the interaction rate of bees with each other, and the spatial distributions of bee movements throughout the nest. The BeeNestABM model tracks bumblebee activity and motility using empirically estimated probabilities for transitions between active (mobile) and inactive states (Fig. A). The location of a bee in relation to the structures such as brood and food pots within the nest influence the transition probabilities and the orientation of bee movement through a combination of random walk and attraction toward the nest structures (Fig. B). The transition probabilities contain a component that considers whether the transition is occuring spontaneously or due to social modulation upon collison with a neighboring bee (Fig. C).
+A key concept of the model is to include rules for bumblebee behaviors inside nests of different sizes and populations that can be modulated upon sublethal exposure to pesticides. These behaviors relate to the portion of the time spent on the nest, the portion of time spent actively moving, the interaction rate of bees with each other, and the spatial distributions of bee movements throughout the nest. These are taken into account through the transition probabilities of switching from active to inactive and vice versa under different conditions, the attractions toward the nest structures, and movement of bees at a distribution of different velocities.
 
-![Figure 1](BeeNestABM.png)
+### Emergence
+Differences between control and exposed bees are expected to emergence regarding the aggregate proportion of time spent on the nest, the spatial distributions of bees, the aggregate average distance to the nest center, the average proportion of time spent actively moving, and the number of bee interactions per timestep.
 
-## Authors
-James D. Crall, Department of Organismic and Evolutionary Biology, Harvard University, jcrall@oeb.harvard.edu
+### Adaptation
+Based on empirical evidence, it was deemed that pesticide exposed individuals have modified transition probabilities compared to the control population. We also consider the bees of both types to resist large fluctuations in their directional heading or velocity, with only a low probability of abrupt changes being acceptable.
 
-Biswadip Dey, Department of Mechanical & Aerospace Engineering, Princeton University, biswadip@princeton.edu
+### Sensing
+The distances to neighbors and to nest structures are used for individuals to sense their positions within their environments. Neighbors are considered to come into contact or "bump" if their coordinates are within BeeBodyThreshold of each other. The environmental stimuli weight serves to attract bees toward the center of nest structures rather than simply following a random walk directional heading within +/- perturbationAngle from their previous heading. Also, if the bees are on or off the nest, they are given different location-based transition probabilities to represent the concept that bees working on nest-structure maintainance functions have a different propensity to move compared to individuals that are not performing those duties.
 
-Ashlee N. Ford Versypt, School of Chemical Engineering, Oklahoma State University, ashleefv@okstate.edu
+### Interaction
+When bees come into direct contact, this changes the probabilities for transitioning between active and inactive states. This is refered to as the socially-modulated social interaction state.
+
+### Stochastisticity
+
+### Observations
+
+## Initialization
+
+## Input data
+
+## Submodels
+
 
 ## Main files
    
