@@ -1,5 +1,5 @@
 # BeeNestABM
-Bee Nest Agent-Based Model: Agent-based model of spatiotemporal distribution of bumblebees in nests
+BeeNestABM: An open-source agent-based model of spatiotemporal distribution of bumblebees in nests
 
 [![DOI](https://zenodo.org/badge/105827383.svg)](https://zenodo.org/badge/latestdoi/105827383)
 
