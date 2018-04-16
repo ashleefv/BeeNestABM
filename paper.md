@@ -9,7 +9,7 @@ authors:
  - name: Ashlee N. Ford Versypt
    orcid: 0000-0001-9059-5703
    affiliation: 1,2
- - name: James R. Crall
+ - name: James D. Crall
    affiliation: 3
  - name: Biswadip Dey
    affilitation: 4
@@ -23,7 +23,7 @@ affiliations:
    index: 3 
  - name: Department of Mechanical & Aerospace Engineering, Princeton University
    index: 4  
-date: 26 March 2018
+date: 16 April 2018
 bibliography: paper.bib
 ---
 
