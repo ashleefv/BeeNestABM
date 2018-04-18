@@ -8,22 +8,20 @@ tags:
 authors:
  - name: Ashlee N. Ford Versypt
    orcid: 0000-0001-9059-5703
-   affiliation: 1,2
+   affiliation: 1
  - name: James D. Crall
-   affiliation: 3
+   affiliation: 2
  - name: Biswadip Dey
-   affilitation: 4
+   affilitation: 3
    
 affiliations:
  - name: School of Chemical Engineering, Oklahoma State University
    index: 1
- - name: Interdisciplinary Toxicology Program, Oklahoma State University
-   index: 2  
  - name: Department of Organismic and Evolutionary Biology, Harvard University
-   index: 3 
+   index: 2 
  - name: Department of Mechanical & Aerospace Engineering, Princeton University
-   index: 4  
-date: 16 April 2018
+   index: 3  
+date: 18 April 2018
 bibliography: paper.bib
 ---
 
