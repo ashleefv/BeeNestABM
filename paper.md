@@ -12,7 +12,7 @@ authors:
  - name: James D. Crall
    affiliation: 2
  - name: Biswadip Dey
-   affilitation: 3
+   affiliation: 3
    
 affiliations:
  - name: School of Chemical Engineering, Oklahoma State University
