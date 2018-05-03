@@ -35,7 +35,7 @@ on the effects of pesticides that occur in bumblebees over short time scales (ho
 smaller spatial region with finer resolution than that considered in the state-of-the-art
 [@Thorbek2016]. These temporal and spatial scales are appropriate for modeling the effects of 
 neonicotinoid pesticides that account for colony size and interactions between exposed and unexposed individuals. The short and local scales allow the model to explicitly consider neighbor interactions and individual bee interactions with structures inside an isolated
-environment without confounding external factors. Novel research results using this software for scientific applications have been obtained [@Crall2018a, @Crall2018b].
+environment without confounding external factors. 
 
 ![A) The BeeNestABM model tracks bumblebee activity and motility using empirically estimated probabilities for transitions between active (mobile) and inactive states. B) The location of a bee in relation to the structures such as brood and food pots within the nest influence the transition probabilities and the orientation of bee movement through a combination of random walk and attraction toward the nest structures. C) The transition probabilities contain a component that considers whether the transition is occuring spontaneously or due to social modulation upon collison with a neighboring bee.](BeeNestABMtransitions.png)
 
