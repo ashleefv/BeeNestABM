@@ -57,7 +57,7 @@ handles.totalTimePoints = 150;
 handles.output = hObject;
 addpath(genpath('beefiles'))
 axes(handles.axes1);
-bee = imread('beefiles/beefiles/Beeimage.jpg');
+bee = imread('beefiles/Beeimage.png');
 imshow(bee);
 % Update handles structuree
 guidata(hObject,handles)
