@@ -30,7 +30,7 @@ bibliography: paper.bib
 This software features the MATLAB source code for an interactive computational model that can be used to study the localized responses 
 of bumblebees to sublethal exposures to a prevalent class of pesticides called neonicotinoids. The code involves an agent-based stochastic model for the interactions between 
 and movements of individual bees within a nest and the nest-related disruptions that occur due to pesticide exposure. The dynamic states of the bees are stored in a matrix, the default data structure 
-of MATLAB. Agent-based modeling allows for building understanding of the colony scale impacts of multiple interacting factors that affect numerous individuals in close proximity and how those change upon pesticide exposure. The scienfic significance is that the model solved in the software focuses 
+of MATLAB. Agent-based modeling allows for building understanding of the colony scale impacts of multiple interacting factors that affect numerous individuals in close proximity and how those change upon pesticide exposure. The scientific significance is that the model solved in the software focuses 
 on the effects of pesticides that occur in bumblebees over short time scales (hours to days) inside a single nest, which includes a much 
 smaller spatial region with finer resolution than that considered in the state-of-the-art
 [@Thorbek2016]. These temporal and spatial scales are appropriate for modeling the effects of 
