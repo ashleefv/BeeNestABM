@@ -36,90 +36,94 @@ outData = array2table(nan(totSamps, 7));
 outData.Properties.VariableNames = {'activity', 'distanceToNestmates', 'distanceToBrood', 'distanceToCenter', 'porTimeOnNest', 'simType', 'treatmentGroup'};
 
 %% define motion parameters
-%Add documentation about where these values come from
 
+%general motionParams used for modelBeeScript that replaces the
+%"optimization" script below
+params = readtable('parameterEstimates.csv');
+motionParamsFull = generateMotionParamsObject_general(params, treatmentList);
 
 optimization = 1; %are we running optimization trials, or experimental trials? Optimization trials will use
-%empirically derived parameters combined for all groups pre-exposure,
-%otherwise group-specific post-exposure parameters are implemented
-
-if optimization  == 1
-    
-    
-    %On nest parameters
-    AIU1 = .01272; %Active to inactive unbumped, group 1
-    IAU1 = .0325; %Inactive to active, unbumped, group 1...
-    AIB1 = .01003; %Active to inactive, bumped, group 1...
-    IAB1 = .3728;
-    
-    motionParamsOnNest = [AIU1 AIU1 AIU1 AIU1; IAU1 IAU1 IAU1 IAU1; AIB1 AIB1 AIB1 AIB1; IAB1 IAB1 IAB1 IAB1];
-    
-    %Off nest parameters
-    AIU1 = .02959; %Active to inactive unbumped
-    IAU1 = .2022; %Inactive to active, unbumped, group 1...
-    AIB1 = .01749; %Active to inactive, bumped, group 1...
-    IAB1 = .35560;
-    
-    %For "full" model
-    motionParamsOffNest = [AIU1 AIU1 AIU1 AIU1; IAU1 IAU1 IAU1 IAU1; AIB1 AIB1 AIB1 AIB1; IAB1 IAB1 IAB1 IAB1];
-    
-    %Combine on and off-nest parameters sets
-    motionParamsFull = cat(3,motionParamsOnNest, motionParamsOffNest);
-    
-elseif optimization == 0
-    
-    
-    %On nest parameters
-    AIU1 = .015; %Active to inactive unbumped, group 1
-    AIU2 = .015; % group 2...
-    AIU3 = .015; %Etc
-    AIU4 = .027;
-    
-    IAU1 = .294; %Inactive to active, unbumped, group 1...
-    IAU2 = .294;
-    IAU3 = .294;
-    IAU4 = .294;
-    
-    AIB1 = .01; %Active to inactive, bumped, group 1...
-    AIB2 = .01;
-    AIB3 = .01;
-    AIB4 = .01;
-    
-    IAB1 = .32;
-    IAB2 = .32;
-    IAB3 = .32;
-    IAB4 = .32;
-    
-    motionParamsOnNest = [AIU1 AIU2 AIU3 AIU4; IAU1 IAU2 IAU3 IAU4; AIB1 AIB2 AIB3 AIB4; IAB1 IAB2 IAB3 IAB4];
-    
-    %Off nest parameters
-    AIU1 = .0305; %Active to inactive unbumped, group 1
-    AIU2 = .0305; % group 2...
-    AIU3 = .0305; %Etc
-    AIU4 = .087;
-    
-    IAU1 = .2137; %Inactive to active, unbumped, group 1...
-    IAU2 = .2137;
-    IAU3 = .2137;
-    IAU4 = .1047;
-    
-    AIB1 = .0206; %Active to inactive, bumped, group 1...
-    AIB2 = .0206;
-    AIB3 = .0206;
-    AIB4 = .079;
-    
-    IAB1 = .25;
-    IAB2 = .25;
-    IAB3 = .25;
-    IAB4 = .134;
-    
-    %For "full" model
-    motionParamsOffNest = [AIU1 AIU2 AIU3 AIU4; IAU1 IAU2 IAU3 IAU4; AIB1 AIB2 AIB3 AIB4; IAB1 IAB2 IAB3 IAB4];
-    
-    %Combine on and off-nest parameters sets
-    motionParamsFull = cat(3,motionParamsOnNest, motionParamsOffNest);
-    
-end
+% %empirically derived parameters combined for all groups pre-exposure,
+% %otherwise group-specific post-exposure parameters are implemented
+ 
+% if optimization  == 1
+%     
+%     
+%     %On nest parameters
+%     AIU1 = .01272; %Active to inactive unbumped, group 1
+%     IAU1 = .0325; %Inactive to active, unbumped, group 1...
+%     AIB1 = .01003; %Active to inactive, bumped, group 1...
+%     IAB1 = .3728;
+%     
+%     motionParamsOnNest = [AIU1 AIU1 AIU1 AIU1; IAU1 IAU1 IAU1 IAU1; AIB1 AIB1 AIB1 AIB1; IAB1 IAB1 IAB1 IAB1];
+%     
+%     %Off nest parameters
+%     AIU1 = .02959; %Active to inactive unbumped
+%     IAU1 = .2022; %Inactive to active, unbumped, group 1...
+%     AIB1 = .01749; %Active to inactive, bumped, group 1...
+%     IAB1 = .35560;
+%     
+%     %For "full" model
+%     motionParamsOffNest = [AIU1 AIU1 AIU1 AIU1; IAU1 IAU1 IAU1 IAU1; AIB1 AIB1 AIB1 AIB1; IAB1 IAB1 IAB1 IAB1];
+%     
+%     %Combine on and off-nest parameters sets
+% %     motionParamsFull = cat(3,motionParamsOnNest, motionParamsOffNest);
+%     
+% elseif optimization == 0
+%     
+%     
+%     %On nest parameters
+%     AIU1 = .015; %Active to inactive unbumped, group 1
+%     AIU2 = .015; % group 2...
+%     AIU3 = .015; %Etc
+%     AIU4 = .027;
+%     
+%     IAU1 = .294; %Inactive to active, unbumped, group 1...
+%     IAU2 = .294;
+%     IAU3 = .294;
+%     IAU4 = .294;
+%     
+%     AIB1 = .01; %Active to inactive, bumped, group 1...
+%     AIB2 = .01;
+%     AIB3 = .01;
+%     AIB4 = .01;
+%     
+%     IAB1 = .32;
+%     IAB2 = .32;
+%     IAB3 = .32;
+%     IAB4 = .32;
+%     
+%     motionParamsOnNest = [AIU1 AIU2 AIU3 AIU4; IAU1 IAU2 IAU3 IAU4; AIB1 AIB2 AIB3 AIB4; IAB1 IAB2 IAB3 IAB4];
+%     
+%     %Off nest parameters
+%     AIU1 = .0305; %Active to inactive unbumped, group 1
+%     AIU2 = .0305; % group 2...
+%     AIU3 = .0305; %Etc
+%     AIU4 = .087;
+%     
+%     IAU1 = .2137; %Inactive to active, unbumped, group 1...
+%     IAU2 = .2137;
+%     IAU3 = .2137;
+%     IAU4 = .1047;
+%     
+%     AIB1 = .0206; %Active to inactive, bumped, group 1...
+%     AIB2 = .0206;
+%     AIB3 = .0206;
+%     AIB4 = .079;
+%     
+%     IAB1 = .25;
+%     IAB2 = .25;
+%     IAB3 = .25;
+%     IAB4 = .134;
+%     
+%     %For "full" model
+%     motionParamsOffNest = [AIU1 AIU2 AIU3 AIU4; IAU1 IAU2 IAU3 IAU4; AIB1 AIB2 AIB3 AIB4; IAB1 IAB2 IAB3 IAB4];
+%     
+%     %Combine on and off-nest parameters sets
+% %     motionParamsFull = cat(3,motionParamsOnNest, motionParamsOffNest);
+%     params = readtable('parameterEstimates.csv');
+%     motionParamsFull = generateMotionParamsObject_general(params, treatmentList);    
+% end
 %%
 %Change to add on means for each separate treatment group within colonies
 zz = 1; %Indexing variable

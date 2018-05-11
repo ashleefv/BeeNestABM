@@ -33,6 +33,7 @@ function nestSimulationData = simulationOutputSpatial(colony, estimatedData, exp
         variableArguments = varargin;
     else
         param_estim = 0;
+        variableArguments = {};
     end
     %% Step 1: Defining the initial state & parameters
     if vis == 1
