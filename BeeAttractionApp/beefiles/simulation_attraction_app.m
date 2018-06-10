@@ -2,11 +2,11 @@
 % Output:
 %   one simulated set of nestSimulationData for frames corresponding to 
 %   the experimental data set.  
-function simulation_attraction(hObject, eventdata, handles)
+function simulation_attraction_app(hObject, eventdata, handles)
 attraction = handles.attraction;
 totalTimePoints = handles.totalTimePoints;
 
-bee_setup_script
+bee_setup_script_app
 
 %% Step 2: Covering each time step
 % Time loop
@@ -15,7 +15,7 @@ for timestep=1:totalTimePoints
     % Update agents
     %% Step 3: Covering each agent
     % Agent loop
-    nestSimulationData(timestep+1,:,:) = rules(dt,nestSimulationData(timestep,:,:),...
+    nestSimulationData(timestep+1,:,:) = rules_app(dt,nestSimulationData(timestep,:,:),...
         broodPosition,emptyFoodPosition,fullFoodPosition,...
         AtoI_Unbumped,ItoA_Unbumped,AtoI_Bumped,ItoA_Bumped,velocityPDF,exposure_state,tags,[attraction 0.1 0.1 0.1]);
 end
@@ -29,6 +29,6 @@ end
 % nestSimulationData = handles.nestSimulationData;
 for timestep = 1:totalTimePoints 
     %%
-    plotCoordinatesAndBrood(nestSimulationData, brood, timestep);
+    plotCoordinatesAndBrood_app(nestSimulationData, brood, timestep);
     drawnow
 end

@@ -57,7 +57,7 @@ handles.totalTimePoints = 150;
 handles.output = hObject;
 addpath(genpath('beefiles'))
 axes(handles.axes1);
-bee = imread('beefiles/Beeimage.png');
+bee = imread('beefiles/Beeimage_app.png');
 imshow(bee);
 % Update handles structuree
 guidata(hObject,handles)
@@ -84,13 +84,13 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 % calls the simulation folder.
 axes(handles.axes3);
-simulation_attraction(hObject, eventdata, handles)
+simulation_attraction_app(hObject, eventdata, handles)
 
 
 
 
 function perin_Callback(hObject, eventdata, handles)
-% hObject    handle to perin (see GCBO)
+% hObject    handle to perin (see GCBO) %percent in
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 in = str2double(get(handles.perin,'String'));
