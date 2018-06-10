@@ -1,4 +1,4 @@
-function ang = angleMean(weights,angles)
+function ang = angleMean_app(weights,angles)
 % https://en.wikipedia.org/wiki/Mean_of_circular_quantities
 numBees = size(angles,2);
 ang = zeros(1,numBees);

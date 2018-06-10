@@ -1,4 +1,4 @@
-function [] = plotCoordinatesAndBrood(nestData, brood, frame)
+function [] = plotCoordinatesAndBrood_app(nestData, brood, frame)
     
     %% Inputs
     % nestData: tracked nest data matrix, of form "preNest" (m x n x 5)
@@ -6,7 +6,7 @@ function [] = plotCoordinatesAndBrood(nestData, brood, frame)
     % frame: what frame/timestep number to plot
     
     %Plot brood
-    addBroodPlot(brood);
+    addBroodPlot_app(brood);
     hold on
     
     %Plot queen separately

@@ -1,4 +1,4 @@
-function [] = addBroodPlot(brood)
+function [] = addBroodPlot_app(brood)
     %% input: brood object, formatted as output of "relabelBroodObject: output
     brInd = brood(:,3) == 1;
     fpInd = brood(:,3) == 2;

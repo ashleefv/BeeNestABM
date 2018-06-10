@@ -1,4 +1,4 @@
-function brood = relabelBroodObject(brood)
+function brood = relabelBroodObject_app(brood)
     %% Inputs
     %brood: n x 3 matrix, where n = # of mapped brood element
     %

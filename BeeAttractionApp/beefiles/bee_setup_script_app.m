@@ -2,13 +2,13 @@
 %% Step 1: Defining the initial state & parameters
 % Initial state of the agents
 colonyNumber = 1; % 4 colonies numbered 1 - 4
-colony = load(['allDataCol' num2str(colonyNumber) '.mat']);
-brood = relabelBroodObject(colony.broodPre);
+colony = load(['allDataCol1_app.mat']);
+brood = relabelBroodObject_app(colony.broodPre);
 numFrames = size(colony.preNest,1);
 numBees = size(colony.preNest,2);
 tags = colony.orTagTreat;
 nestSimulationData = zeros(numFrames,numBees,7); 
-estimatedData = load(['Essential_Info_Col_' num2str(colonyNumber) '.mat']);
+estimatedData = load(['Essential_Info_Col_1_app.mat']);
 
 exposure_state = 'pre'; % 'pre' or 'post'
 

@@ -1,4 +1,4 @@
-function params = assignCohortParameters(COHORTparams,params,tags)
+function params = assignCohortParameters_app(COHORTparams,params,tags)
     params(tags == 0) = COHORTparams(2); % untreated
     params(1) = COHORTparams(1); % queen
     params(tags == 1) = COHORTparams(3); % sucrose control

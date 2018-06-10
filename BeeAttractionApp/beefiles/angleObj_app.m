@@ -1,4 +1,4 @@
-function resultant_angle = angleObj(currentDistanceToObj,DeltaX_Obj,DeltaY_Obj,cutoffRadius)
+function resultant_angle = angleObj_app(currentDistanceToObj,DeltaX_Obj,DeltaY_Obj,cutoffRadius)
 
 % sum all the x distances and y distances to create a resultant vector for
 % those pairs of points that lie within the cutoffRadius from the current

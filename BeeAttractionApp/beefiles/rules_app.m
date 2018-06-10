@@ -1,4 +1,4 @@
-function output = rules(dt,currentState,broodPosition,...
+function output = rules_app(dt,currentState,broodPosition,...
     emptyFoodPosition,fullFoodPosition,...
     AtoI_Unbumped,ItoA_Unbumped,AtoI_Bumped,ItoA_Bumped,velocityPDF,exposure_state,tags,varargin)
 
@@ -80,31 +80,31 @@ cutoffRadius = zeros(numBees,1);
 
 % Fraction within +/- currentVelocity in which new velocity samples are 
 % always acceptable
-velocityPerturbationAlwaysAccept = assignCohortParameters(COHORTvelocityPerturbationAlwaysAccept,velocityPerturbationAlwaysAccept,tags);
+velocityPerturbationAlwaysAccept = assignCohortParameters_app(COHORTvelocityPerturbationAlwaysAccept,velocityPerturbationAlwaysAccept,tags);
 
 % Lambda weights for strength of attraction to nestmates (other bees),
 % brood, empty food pots, and full food pots
-lambdaBrood = assignCohortParameters(COHORTlambdaBrood,lambdaBrood,tags);
-lambdaFullFood = assignCohortParameters(COHORTlambdaFullFood,lambdaFullFood,tags);
-lambdaEmptyFood = assignCohortParameters(COHORTlambdaEmptyFood,lambdaEmptyFood,tags);
+lambdaBrood = assignCohortParameters_app(COHORTlambdaBrood,lambdaBrood,tags);
+lambdaFullFood = assignCohortParameters_app(COHORTlambdaFullFood,lambdaFullFood,tags);
+lambdaEmptyFood = assignCohortParameters_app(COHORTlambdaEmptyFood,lambdaEmptyFood,tags);
 lambdaBees(:) = 1-(lambdaBrood+lambdaFullFood+lambdaEmptyFood);
 
-environmentalStimuliWeight = assignCohortParameters(COHORTenvironmentalStimuliWeight,environmentalStimuliWeight,tags);
+environmentalStimuliWeight = assignCohortParameters_app(COHORTenvironmentalStimuliWeight,environmentalStimuliWeight,tags);
 
-perturbationAngle = assignCohortParameters(COHORTperturbationAngle,perturbationAngle,tags);
+perturbationAngle = assignCohortParameters_app(COHORTperturbationAngle,perturbationAngle,tags);
 
 % This fraction of samples outside of the velocityPerturbationAlwaysAccept 
 % window will be allowed to deviate to a proposedVelocity from the sampled 
 % velocityPDF. Those outside this fraction and also outside the 
 % velocityPerturbationAlwaysAccept window will remain at their currentVelocity
-velocityPerturbationMightAcceptProb = assignCohortParameters(COHORTvelocityPerturbationMightAcceptProb,velocityPerturbationMightAcceptProb,tags);
+velocityPerturbationMightAcceptProb = assignCohortParameters_app(COHORTvelocityPerturbationMightAcceptProb,velocityPerturbationMightAcceptProb,tags);
 
 % Spatial resolution that constitutes the distance at which bees are
 % considered to overlap or bump into each other
-BeeBodyThreshold = assignCohortParameters(COHORTBeeBodyThreshold,BeeBodyThreshold,tags);
+BeeBodyThreshold = assignCohortParameters_app(COHORTBeeBodyThreshold,BeeBodyThreshold,tags);
 
 % Cutoff radius for neighborhood sensing influence
-cutoffRadius = assignCohortParameters(COHORTcutoffRadius,cutoffRadius,tags);
+cutoffRadius = assignCohortParameters_app(COHORTcutoffRadius,cutoffRadius,tags);
 
 %% Update pairwise distances, Delta X & Y, and angles of resultant vectors for the current time step
 % Input:
@@ -121,10 +121,10 @@ currentDistanceToEmptyFood = pdist2(position,emptyFoodPosition);% m
 %   current position vectors
 % Output:
 %   updated difference in x and y coordinates to objects relative to bee positions
-[DeltaX_Bees,DeltaY_Bees] = Delta_Obj(position,position);% m
-[DeltaX_Brood,DeltaY_Brood] = Delta_Obj(position,broodPosition);% m
-[DeltaX_FullFood,DeltaY_FullFood] = Delta_Obj(position,fullFoodPosition);% m
-[DeltaX_EmptyFood,DeltaY_EmptyFood] = Delta_Obj(position,emptyFoodPosition);% m
+[DeltaX_Bees,DeltaY_Bees] = Delta_Obj_app(position,position);% m
+[DeltaX_Brood,DeltaY_Brood] = Delta_Obj_app(position,broodPosition);% m
+[DeltaX_FullFood,DeltaY_FullFood] = Delta_Obj_app(position,fullFoodPosition);% m
+[DeltaX_EmptyFood,DeltaY_EmptyFood] = Delta_Obj_app(position,emptyFoodPosition);% m
 
 % Input:
 %   current position vectors, DeltaX and DeltaY vectors
@@ -132,10 +132,10 @@ currentDistanceToEmptyFood = pdist2(position,emptyFoodPosition);% m
 %   updated angles between bees and the angle of the resultant vector of 
 %   the distance from all attractors of a given category (other nestmates,
 %   brood, full full pots, and empty food pots)
-angleBees = angleObj(currentDistanceToBees,DeltaX_Bees,DeltaY_Bees,cutoffRadius);% radians
-angleBrood = angleObj(currentDistanceToBrood,DeltaX_Brood,DeltaY_Brood,cutoffRadius);% radians
-angleFullFood = angleObj(currentDistanceToFullFood,DeltaX_FullFood,DeltaY_FullFood,cutoffRadius);% radians
-angleEmptyFood = angleObj(currentDistanceToEmptyFood,DeltaX_EmptyFood,DeltaY_EmptyFood,cutoffRadius);% radians
+angleBees = angleObj_app(currentDistanceToBees,DeltaX_Bees,DeltaY_Bees,cutoffRadius);% radians
+angleBrood = angleObj_app(currentDistanceToBrood,DeltaX_Brood,DeltaY_Brood,cutoffRadius);% radians
+angleFullFood = angleObj_app(currentDistanceToFullFood,DeltaX_FullFood,DeltaY_FullFood,cutoffRadius);% radians
+angleEmptyFood = angleObj_app(currentDistanceToEmptyFood,DeltaX_EmptyFood,DeltaY_EmptyFood,cutoffRadius);% radians
 
 %% Check Bump
 % If the bee is in the nest chamber & less than BeeBodyThreshold from
@@ -149,7 +149,7 @@ angleEmptyFood = angleObj(currentDistanceToEmptyFood,DeltaX_EmptyFood,DeltaY_Emp
 %   of bees
 % Output:
 %   updated transition probability vector
-bumpedStorage = bump(BeeBodyThreshold,currentDistanceToBees);
+bumpedStorage = bump_app(BeeBodyThreshold,currentDistanceToBees);
 
 %% Define Transition Probability Vector 
 % Probabilities for state transitions from active to inactive and inactive
@@ -261,12 +261,12 @@ randomWalkAngle = currentAngle' - perturbationAngle'+ 2*perturbationAngle'.*rand
 % Net angle from environmental attractors
 environWeights = [lambdaBees'; lambdaBrood'; lambdaFullFood'; lambdaEmptyFood'];
 environAngles = [angleBees; angleBrood; angleFullFood; angleEmptyFood];
-netEnvironAngle = angleMean(environWeights,environAngles);
+netEnvironAngle = angleMean_app(environWeights,environAngles);
 
 % Net angle from random walk and environmental attractors
 weights = [environmentalStimuliWeight'; 1-environmentalStimuliWeight'];
 angles = [netEnvironAngle; randomWalkAngle];
-updatedAngle = angleMean(weights,angles);
+updatedAngle = angleMean_app(weights,angles);
 
 
 poX = move_idx'.*stepsize.*cumsum([zeros(1,numBees); cos(updatedAngle)]); % before and after for each bee

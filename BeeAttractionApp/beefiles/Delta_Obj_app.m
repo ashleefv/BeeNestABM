@@ -1,4 +1,4 @@
-function [DeltaX_Obj,DeltaY_Obj] = Delta_Obj(position,ObjPosition)
+function [DeltaX_Obj,DeltaY_Obj] = Delta_Obj_app(position,ObjPosition)
 % calculates the final - initial x and y coordinates (Delta X and Delta y)
 % for the position relative to some object
 numBees = length(position);
