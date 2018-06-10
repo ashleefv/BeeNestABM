@@ -85,13 +85,6 @@ The file rules.m and its dependent files contain all the submodels for the agent
 
 ### Empirically-driven simulation
    
-* inSilicoExp_Working.m.
-    Script to adjust input parameters for spontaneous and social transitions between 
-    active/inactive states, run the simulation via simulationOutputSpatial.m, and 
-    analyze the statistics via calculateSummaryStatistics.m.
-
-OR
-
 * optimizerShellSpatial.m
     Function to estimate the unknown parameters (attraction coefficients) using 
     empirically derived values for the transition probabilities and 
