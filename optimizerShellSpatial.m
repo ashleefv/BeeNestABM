@@ -36,7 +36,6 @@ end
 nestData = calculateActivityMatrix(nestData);
 
 tags = colony.orTagTreat; %aka treatmentList
-taglist = colony.tags; %Read out colony's list of marked bees
 % number of time points
 totalTimePoints = 600; % 5min of simulation time % should take about 45 min if totalTimePoints = 7200
 vis = 0;
