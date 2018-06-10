@@ -83,6 +83,10 @@ The file rules.m and its dependent files contain all the submodels for the agent
 
 ## Main files
 
+### Custom simulation
+* modelBeeScript.m
+  Script to allow users to input customized initialization parameters (see Initialization section above). The code then structures that input into the required formats to run the simulationOutputSpatial.m model with the custom inputs. Metrics from calculateSummaryStatistics.m are calculated as model outputs. Statistics are analyzed for repeated trials.
+
 ### Empirically-driven simulation
    
 * optimizerShellSpatial.m
@@ -102,9 +106,6 @@ OR
 * BeeAttractionApp/BeeAttraction.m
   MATLAB graphical user interface for educational purposes (Figure 1). It uses an older version of the ABM model where the bees are attracted environmental stimuli weight "attraction" is variable and is comprised of 10% each from the three types of nest structures and 70% from attraction to nestmates. This is no longer used in the production runs for scientific purposes; however, it does serve as a nice example of an agent-based model for educational outreach use.
   
-### Custom simulation
-* modelBeeScript.m
-  Script to allow users to input customized initialization parameters (see Initialization section above). The code then structures that input into the required formats to run the simulationOutputSpatial.m model with the custom inputs. Metrics from calculateSummaryStatistics.m are calculated as model outputs. Statistics are analyzed for repeated trials.
 
 ## Dependent files
 * simulationOutputSpatial.m.
