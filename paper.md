@@ -6,7 +6,7 @@ tags:
   - mathematical model
   - MATLAB
 authors:
- - name: Ashlee N. Ford-Versypt
+ - name: Ashlee N. Ford Versypt
    orcid: 0000-0001-9059-5703
    affiliation: 1
  - name: James D. Crall
