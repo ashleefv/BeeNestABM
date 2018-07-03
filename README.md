@@ -1,7 +1,11 @@
 # BeeNestABM
 BeeNestABM: An open-source agent-based model of spatiotemporal distribution of bumblebees in nests
 
+Code:
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1303422.svg)](https://doi.org/10.5281/zenodo.1303422)
+
+Paper:
+[![DOI](http://joss.theoj.org/papers/10.21105/joss.00718/status.svg)](https://doi.org/10.21105/joss.00718)
 
 ![Figure 1](thumbnail.PNG)
 
