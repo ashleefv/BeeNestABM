@@ -83,53 +83,22 @@ The empirically-driven simulation files (see Main files section below) use exper
 
 ## Submodels
 
-The file rules.m and its dependent files contain the 5 submodels for the agent-based model. These are summarized in the Process overview and scheduling section above. Here, we provide pseudocode and comments for the implementation of the submodels in rules.m.
+The file rules.m and its dependent files contain the 5 submodels for the agent-based model that are updated during each time step. These are summarized in the Process overview and scheduling section above. Here, we provide pseudocode and comments for the implementation of the submodels in rules.m.
 
 ### Submodel 1: Check whether or not bees are close enough for social interactions.
-%% Update pairwise distances, Delta X & Y, and angles of resultant vectors for the current time step
-% Input:
-%   current position vectors
-% Output:
-%   updated pairwise distance calculations
+First, we calculate pairwise distances between the bees. Pairwise distances are computed using pdist2, a built-in function in MATLAB, and are stored in a vector called currentDistanceToBees.
 
-currentDistanceToBees = pdist2(position,position); % m
-currentDistanceToBrood = pdist2(position,broodPosition);% m
-currentDistanceToFullFood = pdist2(position,fullFoodPosition);% m
-currentDistanceToEmptyFood = pdist2(position,emptyFoodPosition);% m
+    currentDistanceToBees = pdist2(position,position); 
 
-% Input:
-%   current position vectors
-% Output:
-%   updated difference in x and y coordinates to objects relative to bee positions
-[DeltaX_Bees,DeltaY_Bees] = Delta_Obj(position,position);% m
-[DeltaX_Brood,DeltaY_Brood] = Delta_Obj(position,broodPosition);% m
-[DeltaX_FullFood,DeltaY_FullFood] = Delta_Obj(position,fullFoodPosition);% m
-[DeltaX_EmptyFood,DeltaY_EmptyFood] = Delta_Obj(position,emptyFoodPosition);% m
+Then, we use a custom script called bump.m. The input is the currentDistanceToBees and a parameter BeeBodyThreshold that provides a spatial scale of interest in the model representing the average length of the body of a bee. The script sets a vector bumpedStorage values to 1 for bees that are considered to be close enough to interact and 0 otherwise. The interaction or "bump" is considered to happen if the bee is in the nest chamber (position is not NaN, which is only possible for time 0 initialized from data sets) and the pairwise distance between a pair of bees is less than BeeBodyThreshold. We exclude self-contact for bees as being considered as a bump.
 
-% Input:
-%   current position vectors, DeltaX and DeltaY vectors
-% Output:
-%   updated angles between bees and the angle of the resultant vector of 
-%   the distance from all attractors of a given category (other nestmates,
-%   brood, full full pots, and empty food pots)
-angleBees = angleObj(currentDistanceToBees,DeltaX_Bees,DeltaY_Bees,cutoffRadius);% radians
-angleBrood = angleObj(currentDistanceToBrood,DeltaX_Brood,DeltaY_Brood,cutoffRadius);% radians
-angleFullFood = angleObj(currentDistanceToFullFood,DeltaX_FullFood,DeltaY_FullFood,cutoffRadius);% radians
-angleEmptyFood = angleObj(currentDistanceToEmptyFood,DeltaX_EmptyFood,DeltaY_EmptyFood,cutoffRadius);% radians
+    function bumpedStorage = bump()
+    
+    return bumpedStorage
+    
+    bumpedStorage = bump(BeeBodyThreshold,currentDistanceToBees);
 
-%% Check Bump
-% If the bee is in the nest chamber & less than BeeBodyThreshold from
-% another bee, those two bees are close enough to be in contact. Excludes 
-% self-contact for bees in the nest chamber and excludes bees outside the
-% chamber
-
-% Input: 
-%   default transition probability vector
-%   current position of each bee and the threshold distance between a pair
-%   of bees
-% Output:
-%   updated transition probability vector
-bumpedStorage = bump(BeeBodyThreshold,currentDistanceToBees);
+PUT BUMP code here. Is output a vector or matrix?
 
 ### Submodel 2: Transition between active (moving) and inactive (stationary) states.
 %% Define Transition Probability Vector 
@@ -165,6 +134,39 @@ updatedActivity(switch_idx) = 1-currentActivity(switch_idx); % switch activity s
 ### Submodel 3: Move with some velocity and at some angle heading (0-2 pi in 2D) from the current position (Figure 3). 
     - velocity:  
     - angle: 
+    
+We calculate the pairwise distances between each bee and the brood and the food pots. The x- and y-coordinates of each bee are stored in a matrix called position. The coordinates of each nest object are stored in matrices corresponding to type: broodPosition, fullFoodPosition, and emptyFoodPosition.
+    
+    currentDistanceToBrood = pdist2(position,broodPosition);
+    currentDistanceToFullFood = pdist2(position,fullFoodPosition);
+    currentDistanceToEmptyFood = pdist2(position,emptyFoodPosition);
+    
+    we calculate the x- and y-components of the pairwise distances. This is the difference in x- and y-coordinates of objects relative to bee positions. We term these vectors Delta X & Y for the populations of bees, brood, full food pots, and empty food pots. We use a custom script called Delta_Obj calculate the DeltaX and DeltaY vectors. 
+ 
+    Delta_Ojb = function()
+    ...
+
+    [DeltaX_Bees,DeltaY_Bees] = Delta_Obj(position,position);
+    [DeltaX_Brood,DeltaY_Brood] = Delta_Obj(position,broodPosition);
+    [DeltaX_FullFood,DeltaY_FullFood] = Delta_Obj(position,fullFoodPosition);
+    [DeltaX_EmptyFood,DeltaY_EmptyFood] = Delta_Obj(position,emptyFoodPosition);
+
+angles of resultant vectors for the current time step
+
+
+
+
+% Input:
+%   current position vectors, DeltaX and DeltaY vectors
+% Output:
+%   updated angles between bees and the angle of the resultant vector of 
+%   the distance from all attractors of a given category (other nestmates,
+%   brood, full full pots, and empty food pots)
+angleBees = angleObj(currentDistanceToBees,DeltaX_Bees,DeltaY_Bees,cutoffRadius);% radians
+angleBrood = angleObj(currentDistanceToBrood,DeltaX_Brood,DeltaY_Brood,cutoffRadius);% radians
+angleFullFood = angleObj(currentDistanceToFullFood,DeltaX_FullFood,DeltaY_FullFood,cutoffRadius);% radians
+angleEmptyFood = angleObj(currentDistanceToEmptyFood,DeltaX_EmptyFood,DeltaY_EmptyFood,cutoffRadius);% radians
+    
     %% Move
 % If the bee is active and in the nest, then compute the movement rules
 
