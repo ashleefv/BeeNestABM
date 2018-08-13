@@ -47,9 +47,6 @@ The following rules or submodels are executed in rules.m:
 
 Figure 3: Phenomena considered in bee movement submodel 
 
-
-
-
 ## Design concepts
 
 ### Basic principles
@@ -85,7 +82,11 @@ The empirically-driven simulation files (see Main files section below) use exper
 
 ## Submodels
 
-The file rules.m and its dependent files contain the 5 submodels for the agent-based model that are updated during each time step. These are summarized in the Process overview and scheduling section above. Here, we provide pseudocode and comments for the implementation of the submodels in rules.m.
+The file rules.m and its dependent files contain the 4 submodels for the agent-based model that are updated during each time step. These are summarized in the Process overview and scheduling section above. Here, we provide pseudocode and comments for the implementation of the submodels in rules.m that are called by the function simulationOutputSpatial.m (illustrated in Figure 4). 
+
+  ![Figure 4](BeeNestABMflowchart.png)
+
+Figure 4: Flow chart for simulationOutputSpatial.m. The for loop calls rules.m at each timestep to evaluate the 4 submodels. 
 
 ### Submodel 1: Check whether or not bees are close enough for social interactions.
 First, we calculate pairwise distances between the bees. Pairwise distances are computed using pdist2, a built-in function in MATLAB, and are stored in a vector called currentDistanceToBees.
@@ -274,9 +275,7 @@ updatedPosition(updatedPosition(:,1)>nestMaxX, 1) = nestMaxX;
 updatedPosition(updatedPosition(:,1)<0, 1) = 0;
 updatedPosition(updatedPosition(:,2)>nestMaxY,2) = nestMaxY;
 updatedPosition(updatedPosition(:,2)<0,2) = 0;
-### Submodel 5: Update all the states for the next iterations.
-%% Output
-output = updatedState;
+
 
 ## Main files
 
