@@ -35,12 +35,12 @@ The BeeNestABM model tracks bumblebee activity and motility using empirically es
 Figure 2: Phenomena considered in transition probabilities
 
 The following rules or submodels are executed in rules.m:
-  1. Check whether or not bees are close enough for social interactions.
-  2. Transition between active (moving) and inactive (stationary) states.
-  3. Move with some velocity and at some angle heading (0-2 pi in 2D) from the current position (Figure 3). 
+  1. Bump: Check whether or not bees are close enough for social interactions.
+  2. Activity: Transition between active (moving) and inactive (stationary) states.
+  3. Movement: Move with some velocity and at some angle heading (0-2 pi in 2D) from the current position (Figure 3). 
       1. velocity: Bees that were previously inactive are set at a velocity selected from the empirically determined distribution of bee velocities. Bees that were already moving have two options for velocities: if the resampled velocity from the distribution is +/- 20% of the current velocity, it is updated, but if the sample velocity is outside this range, then velocities have a 10% probability of switching to the sample value and 90 % probability of staying at the current velocity. 
       2. angle: First, an angle perturbed within +/- perturbationAngle of the current angle heading is calculated as the random walk angle. Next, the pairwise distances between a bee and the collection of other nestmates and the nest structures (itemized by brood, empty food pots, and full food pots) are calculated along with the angles of the resultant total distance vectors for each category. The attractions to the nestmates and the nest structures are specified as attraction weights called lambda (the current values have all three types of nest structures lumped together and no attraction toward nestmates). These are collectively referred to as the  environmental stimuli. The net angle for the environmental stimuli is the mean in polar coordinates of the angles between each bee and the nestmates and structures in the nest weighted by their attraction lambda values. The net environmental stimuli angle and the random walk angle are combined by a weighted mean in poloar coordinates with the weight of the environmental stimuli set to different weights for different cohorts (default values stored in rules.m) and the random walk deviations weighted at 1-environmental stimuli weight. 
-  4. Truncate a bee's movement if it hits the wall.
+  4. Correction: Truncate a bee's movement if it hits the boundary of the nest.
       
    After the four rules are called, all the states are updated for the next iteration.
   ![Figure 3](BeeNestABMnest.png)
@@ -88,22 +88,17 @@ The file rules.m and its dependent files contain the 4 submodels for the agent-b
 
 Figure 4: Flow chart for simulationOutputSpatial.m. The for loop calls rules.m at each timestep to evaluate the 4 submodels. 
 
-### Submodel 1: Check whether or not bees are close enough for social interactions.
+### Submodel 1 Bump: Check whether or not bees are close enough for social interactions.
 First, we calculate pairwise distances between the bees. Pairwise distances are computed using pdist2, a built-in function in MATLAB, and are stored in a vector called currentDistanceToBees.
 
     currentDistanceToBees = pdist2(position,position); 
 
-Then, we use a custom script called bump.m. The input is the currentDistanceToBees and a parameter BeeBodyThreshold that provides a spatial scale of interest in the model representing the average length of the body of a bee. The script sets a vector bumpedStorage values to 1 for bees that are considered to be close enough to interact and 0 otherwise. The interaction or "bump" is considered to happen if the bee is in the nest chamber (position is not NaN, which is only possible for time 0 initialized from data sets) and the pairwise distance between a pair of bees is less than BeeBodyThreshold. We exclude self-contact for bees as being considered as a bump.
+Then, we use a custom script called bump.m. The input is the currentDistanceToBees and a parameter BeeBodyThreshold that provides a spatial scale of interest in the model representing the average length of the body of a bee or some other user-defined length at which social interactions occur. The script sets the values of a vector bumpedStorage to 1 for bees that are considered to be close enough to interact and to 0 otherwise. The interaction or "bump" is considered to happen if the bee is in the nest chamber (position is not NaN, which is only possible for time 0 initialized from data sets) and the pairwise distance between a pair of bees is less than BeeBodyThreshold. We exclude self-contact as being considered as a bump.
 
-    function bumpedStorage = bump()
-    
-    return bumpedStorage
-    
     bumpedStorage = bump(BeeBodyThreshold,currentDistanceToBees);
 
-PUT BUMP code here. Is output a vector or matrix?
-
-### Submodel 2: Transition between active (moving) and inactive (stationary) states.
+### Submodel 2 Activity: Transition between active (moving) and inactive (stationary) states.
+The vector currentActivity stores values of 1 for rows corresponding to bees that moved in the previous time step and 0 otherwise.
 %% Define Transition Probability Vector 
 % Probabilities for state transitions from active to inactive and inactive
 % to active either with or without being bumped
@@ -134,7 +129,7 @@ updatedActivity = currentActivity; % initialize
 switch_idx = (isfinite(position(:,1))) & (randomTransition < transitionVector); 
 updatedActivity(switch_idx) = 1-currentActivity(switch_idx); % switch activity state index
  
-### Submodel 3: Move with some velocity and at some angle heading (0-2 pi in 2D) from the current position (Figure 3). 
+### Submodel 3 Movement: Move with some velocity and at some angle heading (0-2 pi in 2D) from the current position (Figure 3). 
     - velocity:  
     - angle: 
     
@@ -267,7 +262,7 @@ beforeAfterPosition = [position(:,1) position(:,1) position(:, 2) position(:,2)]
 updatedPosition = [position(:,1)+moveDistance(:,2) position(:,2)+moveDistance(:,4)];
 
 
-### Submodel 4: Truncate a bee's movement if it hits the wall.
+### Submodel 4 Correction: Truncate a bee's movement if it hits the wall.
 %% Check if hit the wall after movement
 % Determine if the bee hit the wall. If it hits the wall, truncate
 % it final position to be the wall in that direction.
