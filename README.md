@@ -40,7 +40,7 @@ The following rules or submodels are executed in rules.m:
   3. Movement: Move with some velocity and at some angle heading (0-2 pi in 2D) from the current position (Figure 3). 
       1. velocity: Bees that were previously inactive are set at a velocity selected from the empirically determined distribution of bee velocities. Bees that were already moving have two options for velocities: if the resampled velocity from the distribution is +/- 20% of the current velocity, it is updated, but if the sample velocity is outside this range, then velocities have a 10% probability of switching to the sample value and 90 % probability of staying at the current velocity. 
       2. angle: First, an angle perturbed within +/- perturbationAngle of the current angle heading is calculated as the random walk angle. Next, the pairwise distances between a bee and the collection of other nestmates and the nest structures (itemized by brood, empty food pots, and full food pots) are calculated along with the angles of the resultant total distance vectors for each category. The attractions to the nestmates and the nest structures are specified as attraction weights called lambda (the current values have all three types of nest structures lumped together and no attraction toward nestmates). These are collectively referred to as the  environmental stimuli. The net angle for the environmental stimuli is the mean in polar coordinates of the angles between each bee and the nestmates and structures in the nest weighted by their attraction lambda values. The net environmental stimuli angle and the random walk angle are combined by a weighted mean in poloar coordinates with the weight of the environmental stimuli set to different weights for different cohorts (default values stored in rules.m) and the random walk deviations weighted at 1-environmental stimuli weight. 
-  4. Correction: Truncate a bee's movement if it would move outside the domain.
+  4. Truncation: Truncate a bee's movement if it would move outside the domain.
       
    After the four rules are called, all the states are updated for the next iteration.
   ![Figure 3](BeeNestABMnest.png)
@@ -217,7 +217,7 @@ For simplicity without considering the location before the movement, the code ab
     poY = move_idx.*stepsize.*sin(updatedAngle); % change in Y for each bee
     updatedPosition = [position(:,1)+poX, position(:,2)+poY];
 
-### Submodel 4 Correction: Truncate a bee's movement if it would move outside the domain.
+### Submodel 4 Truncation: Truncate a bee's movement if it would move outside the domain.
 After movement, we check if a bee's movement would place it outside the domain. If so, the movement in that direction is truncated to the corresponding nest boundary position as if the bee would turn at the wall and slide along it until the bee reaches the target final coordinate in the other dimension (unless that is also outside the domain).
 
     updatedPosition(updatedPosition(:,1)>nestMaxX, 1) = nestMaxX;
