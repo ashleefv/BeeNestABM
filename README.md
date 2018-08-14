@@ -147,7 +147,7 @@ Bees that were already active in the previous time step have two options for vel
        & (proposedVelocity >= (1-velocityPerturbationAlwaysAccept).*currentVelocity);
     updatedVelocity(velocityPerturbationAlwaysAcceptAccept_idx) = proposedVelocity(velocityPerturbationAlwaysAcceptAccept_idx);
 
-The second option is if the proposed velocity is outside the +/- velocityPerturbationAlwaysAccept %  range, then the updatedVelocity will have a velocityPerturbationMightAcceptProb probability of accepting the proposed value and 1-velocityPerturbationMightAcceptProb probability of staying at the currentVelocity.  velocityPerturbationMightAcceptProb default value is 0.1.
+The second option is if the proposed velocity is outside the +/- velocityPerturbationAlwaysAccept %  range, then the updatedVelocity has a velocityPerturbationMightAcceptProb probability of accepting the proposed value and 1-velocityPerturbationMightAcceptProb probability of staying at the currentVelocity. velocityPerturbationMightAcceptProb default value is 0.1.
 
     % Case 2 for bees that were active in the previous time step 
     % velocityPerturbationMightAcceptProb acceptance rate outside of the window around the currentVelocity
@@ -205,11 +205,17 @@ We used angleMean to determine the net angle from the random walk and environmen
 #### Movement
 After stepsize and updatedAngle are determined, we calculate the updatedPosition. Note that we consider the change in position poX and poY before and after each move for debugging purposes. beforeAfterPosition stores the coordinates of the bees before and after the move. This can be plotted.
 
-    poX = move_idx'.*stepsize.*cumsum([zeros(1,numBees); cos(updatedAngle)]); % before and after X for each bee
-    poY = move_idx'.*stepsize.*cumsum([zeros(1,numBees); sin(updatedAngle)]); % before and after X for each bee
-    moveDistance = [poX', poY']; % column order: before & after x then before & after y starting from origin
-    beforeAfterPosition = [position(:,1) position(:,1) position(:, 2) position(:,2)]+moveDistance;
-    updatedPosition = [position(:,1)+moveDistance(:,2) position(:,2)+moveDistance(:,4)];
+    poX = move_idx.*stepsize.*cumsum([zeros(1,numBees); cos(updatedAngle)]); % before and after X for each bee
+    poY = move_idx.*stepsize.*cumsum([zeros(1,numBees); sin(updatedAngle)]); % before and after X for each bee
+    moveDistance = [poX, poY]; % column order: before & after x then before & after y starting from origin
+    beforeAfterPosition = [position(:,1), position(:,1), position(:, 2), position(:,2)]+moveDistance;
+    updatedPosition = [position(:,1)+moveDistance(:,2), position(:,2)+moveDistance(:,4)];
+    
+For simplicity without considering the location before the movement, the code above may be simplified as
+
+    poX = move_idx.*stepsize.*cos(updatedAngle); % change in X for each bee
+    poY = move_idx.*stepsize.*sin(updatedAngle); % change in Y for each bee
+    updatedPosition = [position(:,1)+poX, position(:,2)+poY];
 
 ### Submodel 4 Correction: Truncate a bee's movement if it would move outside the domain.
 After movement, we check if a bee's movement would place it outside the domain. If so, the movement in that direction is truncated to the corresponding nest boundary position as if the bee would turn at the wall and slide along it until the bee reaches the target final coordinate in the other dimension (unless that is also outside the domain).
