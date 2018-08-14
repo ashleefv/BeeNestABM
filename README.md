@@ -86,10 +86,10 @@ The file rules.m and its dependent files contain the 4 submodels for the agent-b
 
   ![Figure 4](BeeNestABMflowchart.png)
 
-Figure 4: Flow chart for simulationOutputSpatial.m. The for loop calls rules.m at each timestep to evaluate the 4 submodels. Names of variables used in the code are italicized. Other names that are not italicized are modified to be easily readable for pseudocode. 
+Figure 4: Flow chart for simulationOutputSpatial.m. The for loop calls rules.m at each timestep to evaluate the 4 submodels. Names of variables used in the code are italicized. Other names that are not italicized are modified to be easily readable for pseudocode. t is the index for the for loop over time steps. dt is the duration of the time step. P is the fractional range about which the velocity is always accepted (velocityPerturbationAlwaysAccept).
 
 ### Submodel 1 Bump: Check whether or not bees are close enough for social interactions.
-First, we calculate pairwise distances between the bees. Pairwise distances are computed using pdist2, a built-in function in MATLAB, and are stored in a vector called currentDistanceToBees.
+First, we calculate pairwise distances between the bees. The x- and y-coordinates of each bee are stored in a matrix called position. Pairwise distances are computed using pdist2, a built-in function in MATLAB, and are stored in a vector called currentDistanceToBees.
 
     currentDistanceToBees = pdist2(position,position); 
 
@@ -128,28 +128,6 @@ We propose a new velocity proposedVelocity by randomly sampling from the velocit
 
     proposedVelocity = 10.^random(velocityPDF,numBees,1); % m/s
     
-Bees that were already active in the previous time step have two options for velocities: 1) if the proposed velocity is +/- velocityPerturbationAlwaysAccept % of the current velocity, then the proposedVelocity is accepted or 2) if the proposed velocity is outside the +/- velocityPerturbationAlwaysAccept %  range, then the updatedVelocity will have a 10% probability of accepting the proposed value and 90% probability of staying at the currentVelocity. velocityPerturbationAlwaysAccept defaults to 20 for a range of +/- 20% around the currentVelocity.
-
-    % case 1 for bees that were active in the previous time step
-    % Accept proposedVelocity if within +/- velocityPerturbationAlwaysAccept of the currentVelocity
-    % velocityPerturbationAlwaysAcceptAccept_idx is the logical index for the bees that satisfy the criteria
-    velocityPerturbationAlwaysAcceptAccept_idx = ...
-       (proposedVelocity <= (1+velocityPerturbationAlwaysAccept).*currentVelocity) ...
-       & (proposedVelocity >= (1-velocityPerturbationAlwaysAccept).*currentVelocity);
-    updatedVelocity(velocityPerturbationAlwaysAcceptAccept_idx) = proposedVelocity(velocityPerturbationAlwaysAcceptAccept_idx);
-
-% velocityPerturbationMightAcceptProb acceptance rate outside of the window around
-% the currentVelocity
-% consider all that were not already accepted
-velocityPerturbationMightAccept_idx = 1-velocityPerturbationAlwaysAcceptAccept_idx; 
-velocityRandom = rand(size(proposedVelocity));
-% set the velocityRandom for the already accepted where they will always
-% fail the probability check below so that they are not manipulated again
-velocityRandom(~velocityPerturbationMightAccept_idx) = 1; 
-% idx is the index for the bees that satisfy the criteria
-velocityPerturbationMightAccept_idx  = (velocityRandom < velocityPerturbationMightAcceptProb);
-updatedVelocity(velocityPerturbationMightAccept_idx) = proposedVelocity(velocityPerturbationMightAccept_idx);
-
 Bees that were previously inactive are set at a velocity selected from the empirically determined distribution of bee velocities velocityPDF. 
 
     switchToActive_idx = switch_idx & move_idx; % logical index of the bees that are moving that switched their activity this iteration 
@@ -158,6 +136,29 @@ Bees that were previously inactive are set at a velocity selected from the empir
 For bees that are not moving (inactive), the velocity is set to 0.
 
     updatedVelocity(~move_idx) = 0;
+    
+Bees that were already active in the previous time step have two options for velocities. The first option is if the proposed velocity is +/- velocityPerturbationAlwaysAccept % of the current velocity, then the proposedVelocity is accepted. velocityPerturbationAlwaysAccept defaults to 0.2 for a range of +/- 20% around the currentVelocity. 
+
+    % Case 1 for bees that were active in the previous time step
+    % Accept proposedVelocity if within +/- velocityPerturbationAlwaysAccept of the currentVelocity
+    % velocityPerturbationAlwaysAcceptAccept_idx is the logical index for the bees that satisfy the criteria
+    velocityPerturbationAlwaysAcceptAccept_idx = ...
+       (proposedVelocity <= (1+velocityPerturbationAlwaysAccept).*currentVelocity) ...
+       & (proposedVelocity >= (1-velocityPerturbationAlwaysAccept).*currentVelocity);
+    updatedVelocity(velocityPerturbationAlwaysAcceptAccept_idx) = proposedVelocity(velocityPerturbationAlwaysAcceptAccept_idx);
+
+The second option is if the proposed velocity is outside the +/- velocityPerturbationAlwaysAccept %  range, then the updatedVelocity will have a velocityPerturbationMightAcceptProb probability of accepting the proposed value and 1-velocityPerturbationMightAcceptProb probability of staying at the currentVelocity.  velocityPerturbationMightAcceptProb default value is 0.1.
+
+    % Case 2 for bees that were active in the previous time step 
+    % velocityPerturbationMightAcceptProb acceptance rate outside of the window around the currentVelocity
+    % Consider all that were not already accepted
+    % Set the velocityRandom for the already accepted where they will always fail the probability check below so that they are not manipulated again
+     % velocityPerturbationMightAccept_idxis the logical index for the bees that satisfy the criteria
+    velocityPerturbationMightAccept_idx = 1-velocityPerturbationAlwaysAcceptAccept_idx; 
+    velocityRandom = rand(size(proposedVelocity));
+    velocityRandom(~velocityPerturbationMightAccept_idx) = 1; 
+    velocityPerturbationMightAccept_idx  = (velocityRandom < velocityPerturbationMightAcceptProb);
+    updatedVelocity(velocityPerturbationMightAccept_idx) = proposedVelocity(velocityPerturbationMightAccept_idx);
 
 The distance vector that a bee will move at the updatedVelocity in a straight line in one time step is stored as stepsize.
 
@@ -165,92 +166,50 @@ The distance vector that a bee will move at the updatedVelocity in a straight li
 
 #### Submodel 3ii) angle 
     
-We calculate the pairwise distances between each bee and the brood and the food pots. The x- and y-coordinates of each bee are stored in a matrix called position. The coordinates of each nest object are stored in matrices corresponding to type: broodPosition, fullFoodPosition, and emptyFoodPosition.
+We calculate the pairwise distances between each bee and the nest objects. The coordinates of each nest object are stored in matrices corresponding to type: broodPosition, fullFoodPosition, and emptyFoodPosition.
     
     currentDistanceToBrood = pdist2(position,broodPosition);
     currentDistanceToFullFood = pdist2(position,fullFoodPosition);
     currentDistanceToEmptyFood = pdist2(position,emptyFoodPosition);
     
-    we calculate the x- and y-components of the pairwise distances. This is the difference in x- and y-coordinates of objects relative to bee positions. We term these vectors Delta X & Y for the populations of bees, brood, full food pots, and empty food pots. We use a custom script called Delta_Obj calculate the DeltaX and DeltaY vectors. 
+We calculate the x- and y-components of the pairwise distances. This is the difference in x- and y-coordinates of objects relative to bee positions. We term these vectors Delta X & Y for the populations of bees, brood, full food pots, and empty food pots. We use a custom script called Delta_Obj to calculate the DeltaX and DeltaY vectors. 
  
-    Delta_Ojb = function()
-    ...
-
     [DeltaX_Bees,DeltaY_Bees] = Delta_Obj(position,position);
     [DeltaX_Brood,DeltaY_Brood] = Delta_Obj(position,broodPosition);
     [DeltaX_FullFood,DeltaY_FullFood] = Delta_Obj(position,fullFoodPosition);
     [DeltaX_EmptyFood,DeltaY_EmptyFood] = Delta_Obj(position,emptyFoodPosition);
 
-angles of resultant vectors for the current time step
+We use the DeltaX and DeltaY vectors to determine the angles of the resultant distance vectors between a bee of interest and all attractors of a given category (other nestmates, brood, full full pots, and empty food pots). We use a custom script called angleObj to do the geometry. The parameter cutoffRadius can be used to bound the region around a bee inside which other nestmates and nest objects attract the bee. If the currentDistance between a bee and a nestmate or object is greater than the cutoffRadius, that nestmate or object is ignored. The default cutoffRadius is the largest dimension of the domain size so that the entire nest is interactive.
 
+    angleBees = angleObj(currentDistanceToBees,DeltaX_Bees,DeltaY_Bees,cutoffRadius);% radians
+    angleBrood = angleObj(currentDistanceToBrood,DeltaX_Brood,DeltaY_Brood,cutoffRadius);% radians
+    angleFullFood = angleObj(currentDistanceToFullFood,DeltaX_FullFood,DeltaY_FullFood,cutoffRadius);% radians
+    angleEmptyFood = angleObj(currentDistanceToEmptyFood,DeltaX_EmptyFood,DeltaY_EmptyFood,cutoffRadius);% radians
+   
+We calculate a random walk angle within range of currentAngle +/- perturbationAngle, where currentAngle is from the previous time step.
 
-
-
-% Input:
-%   current position vectors, DeltaX and DeltaY vectors
-% Output:
-%   updated angles between bees and the angle of the resultant vector of 
-%   the distance from all attractors of a given category (other nestmates,
-%   brood, full full pots, and empty food pots)
-angleBees = angleObj(currentDistanceToBees,DeltaX_Bees,DeltaY_Bees,cutoffRadius);% radians
-angleBrood = angleObj(currentDistanceToBrood,DeltaX_Brood,DeltaY_Brood,cutoffRadius);% radians
-angleFullFood = angleObj(currentDistanceToFullFood,DeltaX_FullFood,DeltaY_FullFood,cutoffRadius);% radians
-angleEmptyFood = angleObj(currentDistanceToEmptyFood,DeltaX_EmptyFood,DeltaY_EmptyFood,cutoffRadius);% radians
+    randomWalkAngle = currentAngle - perturbationAngle + 2*perturbationAngle.*rand(1,numBees); 
     
+We calculate the net angle from environmental attractors using a custom script called angleMean that computes the weighted mean of the angles trigonometrically. The weights are the lambda parameters specified for the attraction due to nestmates and nest objects. The environAngles considers the angles toward the environmental attractors.
 
+    environWeights = [lambdaBees; lambdaBrood; lambdaFullFood; lambdaEmptyFood];
+    environAngles = [angleBees; angleBrood; angleFullFood; angleEmptyFood];
+    netEnvironAngle = angleMean(environWeights,environAngles);
 
+We used angleMean to determine the net angle from the random walk and environmental attractors. environmentalStimuliWeight is the strength of attraction to the collection of environmental attractors.
 
+    weights = [environmentalStimuliWeight; 1-environmentalStimuliWeight];
+    angles = [netEnvironAngle; randomWalkAngle];
+    updatedAngle = angleMean(weights,angles);
 
-% Random walk angle
-%randomWalkAngle = currentAngle - pi/4+ (currentAngle + pi/4 -
-%(currentAngle - pi/4) )*rand(1,numBees); % random perturbation within 
-% +/- 45 degrees from currentAngle
-randomWalkAngle = currentAngle' - perturbationAngle'+ 2*perturbationAngle'.*rand(1,numBees); %
-% simplified math of the eqn above with generalized +/- perturbationAngle
-% from currentAngle
-% randomWalkAngle = 2*pi*rand(1,numBees); %random directions
-% Net angle from environmental attractors
-environWeights = [lambdaBees'; lambdaBrood'; lambdaFullFood'; lambdaEmptyFood'];
-environAngles = [angleBees; angleBrood; angleFullFood; angleEmptyFood];
-netEnvironAngle = angleMean(environWeights,environAngles);
+#### Movement
+After stepsize and updatedAngle are determined, we calculate the updatedPosition. Note that we consider the change in position poX and poY before and after each move for debugging purposes. beforeAfterPosition stores the coordinates of the bees before and after the move. This can be plotted.
 
-% Net angle from random walk and environmental attractors
-weights = [environmentalStimuliWeight'; 1-environmentalStimuliWeight'];
-angles = [netEnvironAngle; randomWalkAngle];
-updatedAngle = angleMean(weights,angles);
-
-% Input:
-%   Updated activity state
-%   Current position 
-%   Current velocityPDF 
-%   currentDistanceToBrood
-%   currentDistanceToFullFood
-%   currentDistanceToEmptyFood
-%   currentDistanceToBees
-%   weight parameters: lambda values and environmentalStimuliWeight
-% Output:
-%   Updated position
-
-poX = move_idx'.*stepsize.*cumsum([zeros(1,numBees); cos(updatedAngle)]); % before and after for each bee
-poY = move_idx'.*stepsize.*cumsum([zeros(1,numBees); sin(updatedAngle)]);
-% poX(ang == NaN) = 0;
-% poY(ang == NaN) = 0;
-moveDistance = [poX', poY']; % column order: before & after x then before & after y starting from origin
-% beforeAfterPosition tells where the coordinates of the bees before and
-% after move
-beforeAfterPosition = [position(:,1) position(:,1) position(:, 2) position(:,2)]+moveDistance;
-% % Plotting for debugging: see where the bees go after a single time step
-% plot(beforeAfterPosition(:,1:2)',beforeAfterPosition(:,3:4)','x-')
-% hold on
-% plot(position(:,1)',position(:,2)','o')
-% hold off
-% legend('1','2','3')
-% figure(2)
-% plot(poX, poY,'x-')
-% legend('1','2','3')
-
-updatedPosition = [position(:,1)+moveDistance(:,2) position(:,2)+moveDistance(:,4)];
-
+    poX = move_idx'.*stepsize.*cumsum([zeros(1,numBees); cos(updatedAngle)]); % before and after X for each bee
+    poY = move_idx'.*stepsize.*cumsum([zeros(1,numBees); sin(updatedAngle)]); % before and after X for each bee
+    moveDistance = [poX', poY']; % column order: before & after x then before & after y starting from origin
+    beforeAfterPosition = [position(:,1) position(:,1) position(:, 2) position(:,2)]+moveDistance;
+    updatedPosition = [position(:,1)+moveDistance(:,2) position(:,2)+moveDistance(:,4)];
 
 ### Submodel 4 Correction: Truncate a bee's movement if it would move outside the domain.
 After movement, we check if a bee's movement would place it outside the domain. If so, the movement in that direction is truncated to the corresponding nest boundary position as if the bee would turn at the wall and slide along it until the bee reaches the target final coordinate in the other dimension (unless that is also outside the domain).
