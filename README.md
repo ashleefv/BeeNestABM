@@ -98,38 +98,21 @@ Then, we use a custom script called bump.m. The input is the currentDistanceToBe
     bumpedStorage = bump(BeeBodyThreshold,currentDistanceToBees);
 
 ### Submodel 2 Activity: Transition between active (moving) and inactive (stationary) states.
-The vector currentActivity stores values of 1 for rows corresponding to bees that moved in the previous time step and 0 otherwise.
-%% Define Transition Probability Vector 
-% Probabilities for state transitions from active to inactive and inactive
-% to active either with or without being bumped
-transitionVector = zeros(size(bumpedStorage));
-transitionVector(bumpedStorage == 0 & currentActivity == 1) = AtoI_Unbumped(bumpedStorage == 0 & currentActivity == 1);
-transitionVector(bumpedStorage == 0 & currentActivity == 0) = ItoA_Unbumped(bumpedStorage == 0 & currentActivity == 0);
-transitionVector(bumpedStorage == 1 & currentActivity == 1) = AtoI_Bumped(bumpedStorage == 1 & currentActivity == 1);
-transitionVector(bumpedStorage == 1 & currentActivity == 0) = ItoA_Bumped(bumpedStorage == 1 & currentActivity == 0);
+The vector currentActivity stores values of 1 for rows corresponding to bees that moved in the previous time step and 0 otherwise. The set of parameters for the model includes the vectors named AtoI_Unbumped, ItoA_Unbumped, AtoI_Bumped, and ItoA_Bumped, which store empirically determined probabilities of bees switching state from active to inactive (AtoI) or inactive to active (ItoA) dependending on whether or not they were "bumped" (denoted as Bumped or Unbumped, respectively). The parameter vectors are tuned to subpopulations (pre-treatment and post-treatment for each dosing group), thus the transition probabilities have values for each bee mapped to treatment group rather than constant values for the entire populuation. A single vector transitionVector is constructed from the corresponding parameter vectors depending on the bumpedStorage and currentActivity values of each bee.
 
+    transitionVector(bumpedStorage == 0 & currentActivity == 1) = AtoI_Unbumped(bumpedStorage == 0 & currentActivity == 1);
+    transitionVector(bumpedStorage == 0 & currentActivity == 0) = ItoA_Unbumped(bumpedStorage == 0 & currentActivity == 0);
+    transitionVector(bumpedStorage == 1 & currentActivity == 1) = AtoI_Bumped(bumpedStorage == 1 & currentActivity == 1);
+    transitionVector(bumpedStorage == 1 & currentActivity == 0) = ItoA_Bumped(bumpedStorage == 1 & currentActivity == 0);
 
-%% Switch States
-% Use the output transition probability vector from the check bump rule to
-% determine whether the active agents will stay active or become inactive
-% and whether the inactive agents will stay inactive or become active
+To determine if the bee switch states (inactive or active), we compare a random number in the range [0,1] to the transitionVector. If the random number is less than the transitionVector, then the updatedActivity changes from 0 to 1 or from 1 to 0. Otherwise, the updatedActivity is equal to the currentActivity.
 
-% Input:
-%   Current activitivity indicator
-% Output: 
-%   Updated activitiy indicator at the current time step
-
-% Check that the agent is in the domain. NaN cannot switch states
-randomTransition = rand(size(currentActivity)); % sample from uniform distribution [0,1]
-updatedActivity = currentActivity; % initialize
-% if the agent is in the domain and the random transition probability is 
-% less than the threshold in the transition vector, then the activity state 
-% switch happens
-% logical index for which bees switch
-switch_idx = (isfinite(position(:,1))) & (randomTransition < transitionVector); 
-updatedActivity(switch_idx) = 1-currentActivity(switch_idx); % switch activity state index
+    randomTransition = rand(size(currentActivity)); % sample from uniform distribution [0,1]
+    updatedActivity = currentActivity; % initialize
+    switch_idx = (isfinite(position(:,1))) & (randomTransition < transitionVector); % logical index for the bees that switch
+    updatedActivity(switch_idx) = 1-currentActivity(switch_idx); % switch activity state for rows indicated by switch_idx
  
-### Submodel 3 Movement: Move with some velocity and at some angle heading (0-2 pi in 2D) from the current position (Figure 3). 
+### Submodel 3 Movement: Move with some velocity and at some angle heading (0-2 pi in 2D) from the current position. 
     - velocity:  
     - angle: 
     
