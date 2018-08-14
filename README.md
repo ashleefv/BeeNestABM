@@ -40,7 +40,7 @@ The following rules or submodels are executed in rules.m:
   3. Movement: Move with some velocity and at some angle heading (0-2 pi in 2D) from the current position (Figure 3). 
       1. velocity: Bees that were previously inactive are set at a velocity selected from the empirically determined distribution of bee velocities. Bees that were already moving have two options for velocities: if the resampled velocity from the distribution is +/- 20% of the current velocity, it is updated, but if the sample velocity is outside this range, then velocities have a 10% probability of switching to the sample value and 90 % probability of staying at the current velocity. 
       2. angle: First, an angle perturbed within +/- perturbationAngle of the current angle heading is calculated as the random walk angle. Next, the pairwise distances between a bee and the collection of other nestmates and the nest structures (itemized by brood, empty food pots, and full food pots) are calculated along with the angles of the resultant total distance vectors for each category. The attractions to the nestmates and the nest structures are specified as attraction weights called lambda (the current values have all three types of nest structures lumped together and no attraction toward nestmates). These are collectively referred to as the  environmental stimuli. The net angle for the environmental stimuli is the mean in polar coordinates of the angles between each bee and the nestmates and structures in the nest weighted by their attraction lambda values. The net environmental stimuli angle and the random walk angle are combined by a weighted mean in poloar coordinates with the weight of the environmental stimuli set to different weights for different cohorts (default values stored in rules.m) and the random walk deviations weighted at 1-environmental stimuli weight. 
-  4. Correction: Truncate a bee's movement if it hits the boundary of the nest.
+  4. Correction: Truncate a bee's movement if it would move outside the domain.
       
    After the four rules are called, all the states are updated for the next iteration.
   ![Figure 3](BeeNestABMnest.png)
@@ -86,7 +86,7 @@ The file rules.m and its dependent files contain the 4 submodels for the agent-b
 
   ![Figure 4](BeeNestABMflowchart.png)
 
-Figure 4: Flow chart for simulationOutputSpatial.m. The for loop calls rules.m at each timestep to evaluate the 4 submodels. 
+Figure 4: Flow chart for simulationOutputSpatial.m. The for loop calls rules.m at each timestep to evaluate the 4 submodels. Names of variables used in the code are italicized. Other names that are not italicized are modified to be easily readable for pseudocode. 
 
 ### Submodel 1 Bump: Check whether or not bees are close enough for social interactions.
 First, we calculate pairwise distances between the bees. Pairwise distances are computed using pdist2, a built-in function in MATLAB, and are stored in a vector called currentDistanceToBees.
@@ -105,7 +105,7 @@ The vector currentActivity stores values of 1 for rows corresponding to bees tha
     transitionVector(bumpedStorage == 1 & currentActivity == 1) = AtoI_Bumped(bumpedStorage == 1 & currentActivity == 1);
     transitionVector(bumpedStorage == 1 & currentActivity == 0) = ItoA_Bumped(bumpedStorage == 1 & currentActivity == 0);
 
-To determine if the bee switch states (inactive or active), we compare a random number in the range [0,1] to the transitionVector. If the random number is less than the transitionVector, then the updatedActivity changes from 0 to 1 or from 1 to 0. Otherwise, the updatedActivity is equal to the currentActivity.
+To determine if the bee switch states (inactive or active), we compare random numbers in the range [0,1] stored in randomTransition to the transitionVector. If the value of randomTransition is less than that in transitionVector, then the updatedActivity changes from 0 to 1 or from 1 to 0. Otherwise, the updatedActivity is equal to the currentActivity.
 
     randomTransition = rand(size(currentActivity)); % sample from uniform distribution [0,1]
     updatedActivity = currentActivity; % initialize
@@ -113,8 +113,57 @@ To determine if the bee switch states (inactive or active), we compare a random 
     updatedActivity(switch_idx) = 1-currentActivity(switch_idx); % switch activity state for rows indicated by switch_idx
  
 ### Submodel 3 Movement: Move with some velocity and at some angle heading (0-2 pi in 2D) from the current position. 
-    - velocity:  
-    - angle: 
+If a bee is active (updatedActivity = 1) and in the nest, then compute the movement rules. Otherwise, that bee is finished with the submodels for this time step.
+
+    move_idx = (updatedActivity == 1) & (isfinite(position(:,1))); % logical index for the bees that move
+
+Before each bee's updated position can be determined, we first must determine the velocity and the direction (angle) for the movement.
+
+#### Submodel 3i) velocity
+We initialize the vector updatedVelocity to the currentVelocity, so that if the sampled velocity is not accepted then the value will default to the currentVelocity.
+
+    updatedVelocity = currentVelocity;
+
+We propose a new velocity proposedVelocity by randomly sampling from the velocityPDF distribution obtained empirically.
+
+    proposedVelocity = 10.^random(velocityPDF,numBees,1); % m/s
+    
+Bees that were already active in the previous time step have two options for velocities: 1) if the proposed velocity is +/- velocityPerturbationAlwaysAccept % of the current velocity, then the proposedVelocity is accepted or 2) if the proposed velocity is outside the +/- velocityPerturbationAlwaysAccept %  range, then the updatedVelocity will have a 10% probability of accepting the proposed value and 90% probability of staying at the currentVelocity. velocityPerturbationAlwaysAccept defaults to 20 for a range of +/- 20% around the currentVelocity.
+
+    % case 1 for bees that were active in the previous time step
+    % Accept proposedVelocity if within +/- velocityPerturbationAlwaysAccept of the currentVelocity
+    % velocityPerturbationAlwaysAcceptAccept_idx is the logical index for the bees that satisfy the criteria
+    velocityPerturbationAlwaysAcceptAccept_idx = ...
+       (proposedVelocity <= (1+velocityPerturbationAlwaysAccept).*currentVelocity) ...
+       & (proposedVelocity >= (1-velocityPerturbationAlwaysAccept).*currentVelocity);
+    updatedVelocity(velocityPerturbationAlwaysAcceptAccept_idx) = proposedVelocity(velocityPerturbationAlwaysAcceptAccept_idx);
+
+% velocityPerturbationMightAcceptProb acceptance rate outside of the window around
+% the currentVelocity
+% consider all that were not already accepted
+velocityPerturbationMightAccept_idx = 1-velocityPerturbationAlwaysAcceptAccept_idx; 
+velocityRandom = rand(size(proposedVelocity));
+% set the velocityRandom for the already accepted where they will always
+% fail the probability check below so that they are not manipulated again
+velocityRandom(~velocityPerturbationMightAccept_idx) = 1; 
+% idx is the index for the bees that satisfy the criteria
+velocityPerturbationMightAccept_idx  = (velocityRandom < velocityPerturbationMightAcceptProb);
+updatedVelocity(velocityPerturbationMightAccept_idx) = proposedVelocity(velocityPerturbationMightAccept_idx);
+
+Bees that were previously inactive are set at a velocity selected from the empirically determined distribution of bee velocities velocityPDF. 
+
+    switchToActive_idx = switch_idx & move_idx; % logical index of the bees that are moving that switched their activity this iteration 
+    updatedVelocity(switchToActive_idx) = proposedVelocity(switchToActive_idx);
+
+For bees that are not moving (inactive), the velocity is set to 0.
+
+    updatedVelocity(~move_idx) = 0;
+
+The distance vector that a bee will move at the updatedVelocity in a straight line in one time step is stored as stepsize.
+
+    stepsize = updatedVelocity'.*dt;
+
+#### Submodel 3ii) angle 
     
 We calculate the pairwise distances between each bee and the brood and the food pots. The x- and y-coordinates of each bee are stored in a matrix called position. The coordinates of each nest object are stored in matrices corresponding to type: broodPosition, fullFoodPosition, and emptyFoodPosition.
     
@@ -148,63 +197,9 @@ angleBrood = angleObj(currentDistanceToBrood,DeltaX_Brood,DeltaY_Brood,cutoffRad
 angleFullFood = angleObj(currentDistanceToFullFood,DeltaX_FullFood,DeltaY_FullFood,cutoffRadius);% radians
 angleEmptyFood = angleObj(currentDistanceToEmptyFood,DeltaX_EmptyFood,DeltaY_EmptyFood,cutoffRadius);% radians
     
-    %% Move
-% If the bee is active and in the nest, then compute the movement rules
 
-% Input:
-%   Updated activity state
-%   Current position 
-%   Current velocityPDF 
-%   currentDistanceToBrood
-%   currentDistanceToFullFood
-%   currentDistanceToEmptyFood
-%   currentDistanceToBees
-%   weight parameters: lambda values and environmentalStimuliWeight
-% Output:
-%   Updated position
 
-% logical index for which bees move
-move_idx = (updatedActivity == 1) & (isfinite(position(:,1)));
 
-% initialize such that if the sampled velocity not accepted, then the value 
-% will default to the currentVelocity
-updatedVelocity = currentVelocity;
-
-% Velocity sampling from the velocityPDF distribution
-proposedVelocity = 10.^random(velocityPDF,numBees,1); % m/s
-
-% 100% acceptance within +/- velocityPerturbationAlwaysAccept of the
-% currentVelocity
-% idx is the index for the bees that satisfy the criteria
-velocityPerturbationAlwaysAcceptAccept_idx = ...
-    (proposedVelocity <= (1+velocityPerturbationAlwaysAccept).*currentVelocity) ...
-    & (proposedVelocity >= (1-velocityPerturbationAlwaysAccept).*currentVelocity);
-
-updatedVelocity(velocityPerturbationAlwaysAcceptAccept_idx) = proposedVelocity(velocityPerturbationAlwaysAcceptAccept_idx);
-
-% velocityPerturbationMightAcceptProb acceptance rate outside of the window around
-% the currentVelocity
-% consider all that were not already accepted
-velocityPerturbationMightAccept_idx = 1-velocityPerturbationAlwaysAcceptAccept_idx; 
-velocityRandom = rand(size(proposedVelocity));
-% set the velocityRandom for the already accepted where they will always
-% fail the probability check below so that they are not manipulated again
-velocityRandom(~velocityPerturbationMightAccept_idx) = 1; 
-% idx is the index for the bees that satisfy the criteria
-velocityPerturbationMightAccept_idx  = (velocityRandom < velocityPerturbationMightAcceptProb);
-updatedVelocity(velocityPerturbationMightAccept_idx) = proposedVelocity(velocityPerturbationMightAccept_idx);
-
-% find the bees that are moving that switched their activity this
-% iteration 
-switchToActive_idx = switch_idx & move_idx; 
-% theese bees must now accept their sampled velocity rather than
-% staying at zero with a high probability
-updatedVelocity(switchToActive_idx) = proposedVelocity(switchToActive_idx);
-
-% for bees that are not moving (inactive), set velocity to 0
-updatedVelocity(~move_idx) = 0;
-
-stepsize = updatedVelocity'.*dt;
 
 % Random walk angle
 %randomWalkAngle = currentAngle - pi/4+ (currentAngle + pi/4 -
@@ -223,6 +218,18 @@ netEnvironAngle = angleMean(environWeights,environAngles);
 weights = [environmentalStimuliWeight'; 1-environmentalStimuliWeight'];
 angles = [netEnvironAngle; randomWalkAngle];
 updatedAngle = angleMean(weights,angles);
+
+% Input:
+%   Updated activity state
+%   Current position 
+%   Current velocityPDF 
+%   currentDistanceToBrood
+%   currentDistanceToFullFood
+%   currentDistanceToEmptyFood
+%   currentDistanceToBees
+%   weight parameters: lambda values and environmentalStimuliWeight
+% Output:
+%   Updated position
 
 poX = move_idx'.*stepsize.*cumsum([zeros(1,numBees); cos(updatedAngle)]); % before and after for each bee
 poY = move_idx'.*stepsize.*cumsum([zeros(1,numBees); sin(updatedAngle)]);
@@ -245,15 +252,13 @@ beforeAfterPosition = [position(:,1) position(:,1) position(:, 2) position(:,2)]
 updatedPosition = [position(:,1)+moveDistance(:,2) position(:,2)+moveDistance(:,4)];
 
 
-### Submodel 4 Correction: Truncate a bee's movement if it hits the wall.
-%% Check if hit the wall after movement
-% Determine if the bee hit the wall. If it hits the wall, truncate
-% it final position to be the wall in that direction.
-updatedPosition(updatedPosition(:,1)>nestMaxX, 1) = nestMaxX;
-updatedPosition(updatedPosition(:,1)<0, 1) = 0;
-updatedPosition(updatedPosition(:,2)>nestMaxY,2) = nestMaxY;
-updatedPosition(updatedPosition(:,2)<0,2) = 0;
+### Submodel 4 Correction: Truncate a bee's movement if it would move outside the domain.
+After movement, we check if a bee's movement would place it outside the domain. If so, the movement in that direction is truncated to the corresponding nest boundary position as if the bee would turn at the wall and slide along it until the bee reaches the target final coordinate in the other dimension (unless that is also outside the domain).
 
+    updatedPosition(updatedPosition(:,1)>nestMaxX, 1) = nestMaxX;
+    updatedPosition(updatedPosition(:,1)<0, 1) = 0;
+    updatedPosition(updatedPosition(:,2)>nestMaxY,2) = nestMaxY;
+    updatedPosition(updatedPosition(:,2)<0,2) = 0;
 
 ## Main files
 
