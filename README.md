@@ -266,8 +266,8 @@ NOT intended to be called directly. This function contains all of the rules of t
     distance to the social center of the nest, and portion of time spent on the nest.
     
 ## References
-* Crall, J.A., B. L. de Bivort, Dey, B., Ford Versypt, A. N., Social buffering of pesticides in bumblebees: agent-based modeling of the effects of colony size and neonicotinoid exposure on nest behavior, Under Review, Frontiers in Ecology and Evolution, 2018.
-* Crall, J.A., Switzer, C., Oppenheimer, R., Combes, S., Pierce, N., De Bivort, B., Ford Versypt, A. N., Dey, B., Brown, A., Eyster, M., Guerin, C. Chronic neonicotinoid exposure disrupts bumblebee nest behavior, social networks, and thermoregulation, Under Review, Science, 2018.
+* Crall, J.A., B. L. de Bivort, Dey, B., Ford Versypt, A. N., Social buffering of pesticides in bumblebees: agent-based modeling of the effects of colony size and neonicotinoid exposure on nest behavior, Frontiers in Ecology and Evolution, 7, 51, 2019. DOI: 10.3389/fevo.2019.00051
+* Crall, J.A., Switzer, C., Oppenheimer, R., Combes, S., Pierce, N., De Bivort, B., Ford Versypt, A. N., Dey, B., Brown, A., Eyster, M., Guerin, C. Chronic neonicotinoid exposure disrupts bumblebee nest behavior, social networks, and thermoregulation, Science, 362(6415), 683–686, 2018. DOI: 10.1126/science.aat1598
 * Grimm, V., Berger, U., Bastiansen, F., Eliassen, S., Ginot, V., Giske, J., Goss-Custard, J., Grand, T., Heinz, S., Huse, G., Huth, A., Jepsen, J.U., Jorgensen, C., Mooij, W.M., Muller, B., Pe'er, G., Piou, C., Railsback, S.F., Robbins, A.M., Robbins, M.M., Rossmanith, E., Ruger, N., Strand, E., Souissi, S., Stillman, R.A., Vabo, R., Visser, U., DeAngelis, D.L., 2006. A standard protocol for describing individual-based and agent-based models, Ecol. Model. 198, 115-126. 
 * Grimm, V., Berger, U., DeAngelis, D.L., Polhill, J.G., Giske, J., Railsback, S.F., 2010. The ODD protocol: A review and first update, Ecol. Model. 221, 2760-2768. 
 
