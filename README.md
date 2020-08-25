@@ -24,6 +24,52 @@ of bumblebees to sublethal exposures to a prevalent class of pesticides called n
 
 To facilitate model reuse and reproducible computational research, we have followed the Overview, Design concepts, and Details (ODD) protocol (Grimm et al. 2006, 2010) for standardizing communication of agent-based models. The purpose of this agent-based model is to track the movements of individual bees within a nest chamber on relatively short time scales (a few seconds to less than one day) considering interactions with nestmates and nest structures such as food or brood pots. The entities are the bumblebees. 
 
+## Main files
+
+### Custom simulation
+* modelBeeScript.m
+  Script to allow users to input customized initialization parameters (see Initialization section above). The code then structures that input into the required formats to run the simulationOutputSpatial.m model with the custom inputs. Metrics from calculateSummaryStatistics.m are calculated as model outputs. Statistics are analyzed for repeated trials.
+
+### Empirically-driven simulation
+   
+* optimizerShellSpatial.m
+    Function to estimate the unknown parameters (attraction coefficients) using 
+    empirically derived values for the transition probabilities and 
+    simulationOutputSpatial.m comparing the model output to the data via all 
+    metrics from calculateSummaryStatistics.m.
+
+OR
+
+* localSensitivity.m
+  Runs the full model with the optimized parameter cases when sensitivity = 0 and 
+  analyzes the statistics via calculateSummaryStatistics.m.. numberTrials indicates how many repeated simulations to run. For   numberTrials > 1, means and standard deviations are calculated for each output metric.
+  
+### Empirically-driven graphical user interface of simplified simulation
+
+* BeeAttractionApp/BeeAttraction.m
+  MATLAB graphical user interface for educational purposes (Figure 1). It uses an older version of the ABM model where the bees are attracted environmental stimuli weight "attraction" is variable and is comprised of 10% each from the three types of nest structures and 70% from attraction to nestmates. This is no longer used in the production runs for scientific purposes; however, it does serve as a nice example of an agent-based model for educational outreach use.
+  
+
+## Dependent files
+* simulationOutputSpatial.m.
+   The function runs the model defined by rules.m for a user-defined number of time steps with the default parameters. This file is intended to be called by other scripts to repeat the simulation for determining statistics or to test the impacts of setting different parameter sets for parameter estimation, sensitivity analysis, or in silico experiments. Set vis = 1 to generate plots and videos of the output. Set vis = 0 to run without figures.
+   
+* rules.m.
+NOT intended to be called directly. This function contains all of the rules of the agent-based model that are called at each time step. These are listed under Process overview and scheduling section above.
+  
+* calculateSummaryStatistics.m.
+    Given a nestData object and the coordinates of the nest structures (brood and 
+    food pots), the function returns the means over all   time and all bees and the 
+    time averaged values for each of the bees for the following calculated metrics: 
+    activity (moving or not), distance to other bees, distance to nest structures, 
+    distance to the social center of the nest, and portion of time spent on the nest.
+    
+## References
+* Crall, J.A., B. L. de Bivort, Dey, B., Ford Versypt, A. N., Social buffering of pesticides in bumblebees: agent-based modeling of the effects of colony size and neonicotinoid exposure on nest behavior, Frontiers in Ecology and Evolution, 7, 51, 2019. DOI: 10.3389/fevo.2019.00051
+* Crall, J.A., Switzer, C., Oppenheimer, R., Combes, S., Pierce, N., De Bivort, B., Ford Versypt, A. N., Dey, B., Brown, A., Eyster, M., Guerin, C. Chronic neonicotinoid exposure disrupts bumblebee nest behavior, social networks, and thermoregulation, Science, 362(6415), 683–686, 2018. DOI: 10.1126/science.aat1598
+* Grimm, V., Berger, U., Bastiansen, F., Eliassen, S., Ginot, V., Giske, J., Goss-Custard, J., Grand, T., Heinz, S., Huse, G., Huth, A., Jepsen, J.U., Jorgensen, C., Mooij, W.M., Muller, B., Pe'er, G., Piou, C., Railsback, S.F., Robbins, A.M., Robbins, M.M., Rossmanith, E., Ruger, N., Strand, E., Souissi, S., Stillman, R.A., Vabo, R., Visser, U., DeAngelis, D.L., 2006. A standard protocol for describing individual-based and agent-based models, Ecol. Model. 198, 115-126. 
+* Grimm, V., Berger, U., DeAngelis, D.L., Polhill, J.G., Giske, J., Railsback, S.F., 2010. The ODD protocol: A review and first update, Ecol. Model. 221, 2760-2768. 
+
 ## Entities, state variables, and scales
 The entities are characterized by the following state variables that are updated at each time step: the x- and y-coordinates, the velocity, the activity state, and the directional heading angle. The states are stored in the nestSimulationData 3-dimensional MATLAB matrix. The simulation environment also includes nest stuctures--full and empty food pots and brood pots--dispersed throughout the nest. The model considers collectives of bees that are on or off of the nest based on their locations relative to the nest structures. The default length scales are the nestMaxX and nestMaxY settings set to 25 cm and 20 cm, respectively for the dimensions of the nest. The bees have size BeeBodyThreshold = 1 cm. The time step is 1/frequency, where the default frequency is 2 Hz, and a simuation runs for  for totalTimePoints, which has typical values between 600 and 7200 for 5-60 min of simulated time. 
 
@@ -224,51 +270,5 @@ After movement, we check if a bee's movement would place it outside the domain. 
     updatedPosition(updatedPosition(:,1)<0, 1) = 0;
     updatedPosition(updatedPosition(:,2)>nestMaxY,2) = nestMaxY;
     updatedPosition(updatedPosition(:,2)<0,2) = 0;
-
-## Main files
-
-### Custom simulation
-* modelBeeScript.m
-  Script to allow users to input customized initialization parameters (see Initialization section above). The code then structures that input into the required formats to run the simulationOutputSpatial.m model with the custom inputs. Metrics from calculateSummaryStatistics.m are calculated as model outputs. Statistics are analyzed for repeated trials.
-
-### Empirically-driven simulation
-   
-* optimizerShellSpatial.m
-    Function to estimate the unknown parameters (attraction coefficients) using 
-    empirically derived values for the transition probabilities and 
-    simulationOutputSpatial.m comparing the model output to the data via all 
-    metrics from calculateSummaryStatistics.m.
-
-OR
-
-* localSensitivity.m
-  Runs the full model with the optimized parameter cases when sensitivity = 0 and 
-  analyzes the statistics via calculateSummaryStatistics.m.. numberTrials indicates how many repeated simulations to run. For   numberTrials > 1, means and standard deviations are calculated for each output metric.
-  
-### Empirically-driven graphical user interface of simplified simulation
-
-* BeeAttractionApp/BeeAttraction.m
-  MATLAB graphical user interface for educational purposes (Figure 1). It uses an older version of the ABM model where the bees are attracted environmental stimuli weight "attraction" is variable and is comprised of 10% each from the three types of nest structures and 70% from attraction to nestmates. This is no longer used in the production runs for scientific purposes; however, it does serve as a nice example of an agent-based model for educational outreach use.
-  
-
-## Dependent files
-* simulationOutputSpatial.m.
-   The function runs the model defined by rules.m for a user-defined number of time steps with the default parameters. This file is intended to be called by other scripts to repeat the simulation for determining statistics or to test the impacts of setting different parameter sets for parameter estimation, sensitivity analysis, or in silico experiments. Set vis = 1 to generate plots and videos of the output. Set vis = 0 to run without figures.
-   
-* rules.m.
-NOT intended to be called directly. This function contains all of the rules of the agent-based model that are called at each time step. These are listed under Process overview and scheduling section above.
-  
-* calculateSummaryStatistics.m.
-    Given a nestData object and the coordinates of the nest structures (brood and 
-    food pots), the function returns the means over all   time and all bees and the 
-    time averaged values for each of the bees for the following calculated metrics: 
-    activity (moving or not), distance to other bees, distance to nest structures, 
-    distance to the social center of the nest, and portion of time spent on the nest.
-    
-## References
-* Crall, J.A., B. L. de Bivort, Dey, B., Ford Versypt, A. N., Social buffering of pesticides in bumblebees: agent-based modeling of the effects of colony size and neonicotinoid exposure on nest behavior, Frontiers in Ecology and Evolution, 7, 51, 2019. DOI: 10.3389/fevo.2019.00051
-* Crall, J.A., Switzer, C., Oppenheimer, R., Combes, S., Pierce, N., De Bivort, B., Ford Versypt, A. N., Dey, B., Brown, A., Eyster, M., Guerin, C. Chronic neonicotinoid exposure disrupts bumblebee nest behavior, social networks, and thermoregulation, Science, 362(6415), 683–686, 2018. DOI: 10.1126/science.aat1598
-* Grimm, V., Berger, U., Bastiansen, F., Eliassen, S., Ginot, V., Giske, J., Goss-Custard, J., Grand, T., Heinz, S., Huse, G., Huth, A., Jepsen, J.U., Jorgensen, C., Mooij, W.M., Muller, B., Pe'er, G., Piou, C., Railsback, S.F., Robbins, A.M., Robbins, M.M., Rossmanith, E., Ruger, N., Strand, E., Souissi, S., Stillman, R.A., Vabo, R., Visser, U., DeAngelis, D.L., 2006. A standard protocol for describing individual-based and agent-based models, Ecol. Model. 198, 115-126. 
-* Grimm, V., Berger, U., DeAngelis, D.L., Polhill, J.G., Giske, J., Railsback, S.F., 2010. The ODD protocol: A review and first update, Ecol. Model. 221, 2760-2768. 
 
 (c) Ashlee N. Ford Versypt, 2018
